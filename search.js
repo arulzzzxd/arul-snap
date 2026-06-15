@@ -1,39 +1,78 @@
-const results = document.getElementById("searchResults");
+// search.js
+// Arulzxd Music Player - Search Feature
 
-async function searchMusic() {
+const searchInput = document.getElementById("searchInput");
+const searchResults = document.getElementById("searchResults");
+const audioPlayer = document.getElementById("audioPlayer");
 
-  const query =
-    document.getElementById("searchInput").value;
+let debounceTimer = null;
 
-  if (!query) return;
+// Event input search
+searchInput.addEventListener("input", (e) => {
+    const query = e.target.value.trim();
 
-  results.innerHTML =
-    "<div class='loading'>Mencari...</div>";
+    clearTimeout(debounceTimer);
 
-  try {
+    if (query.length === 0) {
+        searchResults.innerHTML = "";
+        return;
+    }
 
-    const res = await fetch(
-      `/api/search?query=${encodeURIComponent(query)}`
-    );
+    debounceTimer = setTimeout(() => {
+        searchSongs(query);
+    }, 400);
+});
 
-    const json = await res.json();
+// Fetch search API
+async function searchSongs(query) {
+    try {
+        searchResults.innerHTML = `<p class="loading">Searching...</p>`;
 
-    const videos = json.result.videos || [];
+        // Ganti URL ini sesuai backend/API kamu
+        const res = await fetch(`https://simple-api-lagi.vercel.app/api/search/ytsearch?query=${encodeURIComponent(query)}`);
+        
+        if (!res.ok) throw new Error("Network error");
 
-    results.innerHTML = videos.map(v => `
-      <div class="music-card">
-        <img src="${v.thumbnail}">
-        <div class="music-info">
-          <h4>${v.title}</h4>
-          <p>${v.author?.name || "Unknown"}</p>
-        </div>
-      </div>
-    `).join("");
+        const data = await res.json();
 
-  } catch {
-
-    results.innerHTML =
-      "<div class='loading'>Gagal mengambil data</div>";
-
-  }
+        renderResults(data.results || []);
+    } catch (err) {
+        console.error(err);
+        searchResults.innerHTML = `<p class="error">Gagal mencari lagu.</p>`;
+    }
 }
+
+// Render hasil search
+function renderResults(songs) {
+    if (!songs.length) {
+        searchResults.innerHTML = `<p class="empty">Lagu tidak ditemukan.</p>`;
+        return;
+    }
+
+    searchResults.innerHTML = songs.map(song => `
+        <div class="song-item" onclick="playSong('${song.url}', '${song.title}', '${song.artist}', '${song.image}')">
+            <img src="${song.image}" alt="${song.title}">
+            <div class="song-info">
+                <h4>${song.title}</h4>
+                <p>${song.artist}</p>
+            </div>
+            <button class="play-btn">▶</button>
+        </div>
+    `).join("");
+}
+
+// Play lagu
+function playSong(url, title, artist, image) {
+    audioPlayer.src = url;
+    audioPlayer.play();
+
+    // update UI player (sesuaikan dengan UI kamu)
+    document.getElementById("nowTitle").textContent = title;
+    document.getElementById("nowArtist").textContent = artist;
+    document.getElementById("nowImage").src = image;
+
+    document.querySelector(".player").classList.add("active");
+}
+
+// Optional: expose global
+window.playSong = playSong;

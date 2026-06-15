@@ -8,169 +8,177 @@
 
 <link rel="stylesheet" href="style.css">
 
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
 <link rel="stylesheet"
 href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
 </head>
 <body>
 
+<!-- HEADER -->
 <header class="topbar">
+    <h1>🎵 Arulz Music</h1>
 
-<div class="profile">
-
-<div class="avatar">
-A
-</div>
-
-<div>
-<h1>Arulz Music</h1>
-<p>Streaming Music</p>
-</div>
-
-</div>
-
-<a href="search.html" class="search-btn">
-<i class="fas fa-search"></i>
-</a>
-
+    <a href="search.html" class="search-btn">
+        <i class="fas fa-search"></i>
+    </a>
 </header>
 
-<section class="banner">
+<!-- CONTENT -->
+<main class="container">
 
-<div class="banner-content">
-<h2>Top Hits Indonesia</h2>
-<p>Dengarkan lagu populer hari ini</p>
-</div>
+    <!-- TOP HITS -->
+    <section>
+        <h2>Top Hits Indonesia</h2>
+        <div id="topHits" class="card-grid">
+            <div class="loading">
+                Memuat lagu...
+            </div>
+        </div>
+    </section>
 
-</section>
+    <!-- VIRAL -->
+    <section>
+        <h2>Lagu Viral</h2>
+        <div id="viralHits" class="card-grid">
+            <div class="loading">
+                Memuat lagu...
+            </div>
+        </div>
+    </section>
 
-<section>
+    <!-- TERBARU -->
+    <section>
+        <h2>Musik Terbaru</h2>
+        <div id="newRelease" class="card-grid">
+            <div class="loading">
+                Memuat lagu...
+            </div>
+        </div>
+    </section>
 
-<h2 class="section-title">
-Terakhir Diputar
-</h2>
+    <!-- TERAKHIR DIPUTAR -->
+    <section>
+        <h2>Terakhir Diputar</h2>
+        <div id="recentSongs" class="song-list">
+            <div class="loading">
+                Belum ada lagu diputar
+            </div>
+        </div>
+    </section>
 
-<div id="recentSongs" class="vertical-list">
+</main>
 
-<div class="loading">
-Memuat lagu...
-</div>
-
-</div>
-
-</section>
-
-<section>
-
-<h2 class="section-title">
-Top Hits Indonesia
-</h2>
-
-<div id="topHits" class="music-grid">
-
-<div class="loading">
-Memuat lagu...
-</div>
-
-</div>
-
-</section>
-
-<section>
-
-<h2 class="section-title">
-Viral TikTok
-</h2>
-
-<div id="viralHits" class="music-grid">
-
-<div class="loading">
-Memuat lagu...
-</div>
-
-</div>
-
-</section>
-
-<section>
-
-<h2 class="section-title">
-Musik Terbaru
-</h2>
-
-<div id="newRelease" class="music-grid">
-
-<div class="loading">
-Memuat lagu...
-</div>
-
-</div>
-
-</section>
-
+<!-- MINI PLAYER -->
 <div class="player">
 
-<img
-id="playerThumb"
-src="https://via.placeholder.com/100">
+    <img
+    id="playerThumb"
+    src="https://placehold.co/80x80"
+    alt="thumbnail">
 
-<div class="player-info">
+    <div class="player-info">
+        <h4 id="playerTitle">
+            Pilih Lagu
+        </h4>
 
-<h4 id="playerTitle">
-Belum ada lagu
-</h4>
+        <p id="playerArtist">
+            Artist
+        </p>
+    </div>
 
-<p id="playerArtist">
--
-</p>
-
-</div>
-
-<div class="player-controls">
-
-<button id="playBtn">
-<i class="fas fa-play"></i>
-</button>
-
-<a
-id="downloadBtn"
-target="_blank">
-
-<button>
-<i class="fas fa-download"></i>
-</button>
-
-</a>
+    <button id="playBtn">
+        <i class="fas fa-play"></i>
+    </button>
 
 </div>
 
+<!-- FULL PLAYER -->
+<div id="fullPlayer" class="full-player">
+
+    <div class="full-header">
+
+        <button onclick="closePlayer()">
+            <i class="fas fa-chevron-down"></i>
+        </button>
+
+        <span>Sekarang Diputar</span>
+
+        <div></div>
+
+    </div>
+
+    <div class="full-content">
+
+        <img
+        id="fpThumb"
+        src="https://placehold.co/400x400"
+        alt="cover">
+
+        <h2 id="fpTitle">
+            Judul Lagu
+        </h2>
+
+        <p id="fpArtist">
+            Nama Artist
+        </p>
+
+        <div class="progress-container">
+
+            <div class="progress-bg">
+
+                <div
+                id="progress"
+                class="progress">
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="controls">
+
+            <button id="prevBtn">
+                <i class="fas fa-backward"></i>
+            </button>
+
+            <button id="bigPlay">
+                <i class="fas fa-play"></i>
+            </button>
+
+            <button id="nextBtn">
+                <i class="fas fa-forward"></i>
+            </button>
+
+        </div>
+
+        <button
+        id="downloadBtn"
+        class="download-btn">
+
+            <i class="fas fa-download"></i>
+            Download MP3
+
+        </button>
+
+    </div>
+
+</div>
+
+<!-- AUDIO -->
 <audio id="audioPlayer"></audio>
 
-</div>
-
+<!-- BOTTOM NAV -->
 <nav class="bottom-nav">
 
-<a href="index.html">
-<i class="fas fa-home"></i>
-<span>Home</span>
-</a>
+    <a href="index.html" class="active">
+        <i class="fas fa-home"></i>
+        <span>Home</span>
+    </a>
 
-<a href="search.html">
-<i class="fas fa-search"></i>
-<span>Cari</span>
-</a>
-
-<a href="#">
-<i class="fas fa-heart"></i>
-<span>Favorit</span>
-</a>
-
-<a href="#">
-<i class="fas fa-user"></i>
-<span>Akun</span>
-</a>
+    <a href="search.html">
+        <i class="fas fa-search"></i>
+        <span>Cari</span>
+    </a>
 
 </nav>
 
