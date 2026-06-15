@@ -12,12 +12,13 @@
 margin:0;
 padding:0;
 box-sizing:border-box;
-font-family:'Poppins',sans-serif;
+font-family:Poppins,sans-serif;
 }
 
 body{
 background:#121212;
 color:#fff;
+overflow-x:hidden;
 }
 
 .sidebar{
@@ -35,7 +36,7 @@ z-index:100;
 }
 
 .logo{
-font-size:14px;
+font-size:16px;
 font-weight:700;
 color:#1DB954;
 text-align:center;
@@ -62,12 +63,13 @@ color:#fff;
 .main{
 margin-left:80px;
 padding:15px;
-padding-bottom:130px;
+padding-bottom:120px;
 }
 
 .search-box{
 display:flex;
 gap:10px;
+margin-bottom:20px;
 }
 
 .search-box input{
@@ -75,27 +77,26 @@ flex:1;
 height:50px;
 border:none;
 outline:none;
-border-radius:25px;
-background:#242424;
+border-radius:30px;
 padding:0 20px;
-color:#fff;
+background:#242424;
+color:white;
 font-size:15px;
 }
 
 .search-box button{
 width:90px;
 border:none;
-border-radius:25px;
+border-radius:30px;
 background:#1DB954;
 color:white;
-font-weight:600;
+font-weight:bold;
 cursor:pointer;
 }
 
 .results{
-margin-top:20px;
 display:grid;
-grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
+grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
 gap:15px;
 }
 
@@ -113,7 +114,7 @@ background:#282828;
 
 .card img{
 width:100%;
-height:140px;
+height:150px;
 object-fit:cover;
 border-radius:10px;
 }
@@ -121,10 +122,10 @@ border-radius:10px;
 .card h3{
 font-size:13px;
 margin-top:8px;
+overflow:hidden;
 display:-webkit-box;
 -webkit-line-clamp:2;
 -webkit-box-orient:vertical;
-overflow:hidden;
 }
 
 .card p{
@@ -135,7 +136,8 @@ margin-top:5px;
 
 .loading{
 text-align:center;
-padding:30px;
+padding:40px;
+grid-column:1/-1;
 }
 
 .player{
@@ -149,14 +151,14 @@ padding:10px;
 display:flex;
 align-items:center;
 gap:10px;
-z-index:1000;
+z-index:999;
 }
 
 .player img{
 width:60px;
 height:60px;
-object-fit:cover;
 border-radius:10px;
+object-fit:cover;
 }
 
 .info{
@@ -191,10 +193,12 @@ font-weight:600;
 
 .play-btn{
 background:#1DB954;
+color:#000;
 }
 
 .download-btn{
 background:#fff;
+color:#000;
 }
 
 audio{
@@ -211,13 +215,30 @@ grid-template-columns:repeat(2,1fr);
 height:120px;
 }
 
+.player{
+padding:8px;
+}
+
+.player img{
+width:50px;
+height:50px;
+}
+
+.controls button{
+padding:8px 12px;
+font-size:12px;
+}
+
 }
 </style>
 </head>
 <body>
 
 <div class="sidebar">
-<div class="logo">🎵<br>Arulz</div>
+<div class="logo">
+🎵<br>
+Arulz
+</div>
 
 <div class="menu">
 <a href="#">Home</a>
@@ -230,14 +251,23 @@ height:120px;
 
 <div class="search-box">
 <input
-id="query"
 type="text"
+id="query"
 placeholder="Cari lagu..."
 onkeypress="if(event.key==='Enter') searchMusic()">
-<button onclick="searchMusic()">Cari</button>
+
+<button onclick="searchMusic()">
+Cari
+</button>
 </div>
 
-<div id="results" class="results"></div>
+<div class="results" id="results">
+
+<div class="loading">
+Cari lagu favoritmu...
+</div>
+
+</div>
 
 </div>
 
@@ -248,11 +278,17 @@ id="playerThumb"
 src="https://via.placeholder.com/150">
 
 <div class="info">
-<h4 id="playerTitle">Belum ada lagu</h4>
-<p id="playerArtist">-</p>
+<h4 id="playerTitle">
+Belum ada lagu
+</h4>
+
+<p id="playerArtist">
+-
+</p>
 </div>
 
 <div class="controls">
+
 <button
 class="play-btn"
 id="playBtn">
@@ -268,6 +304,7 @@ Download
 </button>
 
 </a>
+
 </div>
 
 <audio id="audioPlayer"></audio>
@@ -276,68 +313,71 @@ Download
 
 <script>
 
-const results=document.getElementById("results");
-const audio=document.getElementById("audioPlayer");
+const results =
+document.getElementById("results");
+
+const audio =
+document.getElementById("audioPlayer");
+
+const playBtn =
+document.getElementById("playBtn");
 
 async function searchMusic(){
 
-const query=document.getElementById("query").value.trim();
+const query =
+document.getElementById("query")
+.value
+.trim();
 
 if(!query) return;
 
-results.innerHTML=
-'<div class="loading">🔍 Mencari lagu...</div>';
+results.innerHTML = `
+<div class="loading">
+🔍 Mencari lagu...
+</div>
+`;
 
 try{
 
-const res=await fetch(
+const res = await fetch(
 `https://simple-api-lagi.vercel.app/api/search/ytsearch?query=${encodeURIComponent(query)}`
 );
 
-const json=await res.json();
+const json = await res.json();
 
-console.log(json);
+const videos =
+json.result?.videos || [];
 
-const data=
-json.result ||
-json.results ||
-json.data ||
-[];
+results.innerHTML = "";
 
-results.innerHTML="";
+if(videos.length === 0){
 
-if(data.length===0){
-results.innerHTML=
-"<h3>Tidak ada hasil ditemukan</h3>";
+results.innerHTML = `
+<div class="loading">
+Tidak ada hasil ditemukan
+</div>
+`;
+
 return;
 }
 
-data.forEach(item=>{
-
-const title=item.title || "Unknown";
-const thumb=item.thumbnail || item.image || "";
-const channel=
-item.author?.name ||
-item.channel ||
-"Unknown";
-
-const url=
-item.url ||
-item.link ||
-item.videoUrl ||
-"";
+videos.forEach(video => {
 
 results.innerHTML += `
 <div class="card"
 onclick="playMusic(
-'${encodeURIComponent(url)}',
-'${thumb}',
-'${title.replace(/'/g,'')}',
-'${channel.replace(/'/g,'')}'
+'${encodeURIComponent(video.url)}',
+'${video.thumbnail}',
+'${video.title.replace(/'/g,'')}',
+'${video.author.replace(/'/g,'')}'
 )">
-<img src="${thumb}">
-<h3>${title}</h3>
-<p>${channel}</p>
+
+<img src="${video.thumbnail}">
+
+<h3>${video.title}</h3>
+
+<p>${video.author}</p>
+
 </div>
 `;
 
@@ -347,8 +387,11 @@ onclick="playMusic(
 
 console.error(err);
 
-results.innerHTML=
-"<h3>❌ Gagal mengambil data</h3>";
+results.innerHTML = `
+<div class="loading">
+❌ Gagal mengambil data
+</div>
+`;
 
 }
 
@@ -361,39 +404,35 @@ title,
 artist
 ){
 
-document.getElementById("playerThumb").src=thumb;
-document.getElementById("playerTitle").innerText=title;
-document.getElementById("playerArtist").innerText=artist;
+document.getElementById("playerThumb").src = thumb;
+document.getElementById("playerTitle").innerText = title;
+document.getElementById("playerArtist").innerText = artist;
 
 try{
 
-const res=await fetch(
+const res = await fetch(
 `https://simple-api-lagi.vercel.app/api/download/ytmp3?url=${decodeURIComponent(url)}`
 );
 
-const json=await res.json();
+const json = await res.json();
 
-console.log(json);
-
-const mp3=
-json.result?.download ||
-json.result?.url ||
-json.download ||
-json.url ||
-json.result?.audio;
+const mp3 =
+json.result?.download?.url;
 
 if(!mp3){
+
 alert("Link MP3 tidak ditemukan");
 return;
+
 }
 
-audio.src=mp3;
+audio.src = mp3;
 
-document.getElementById("downloadBtn").href=mp3;
+document.getElementById("downloadBtn").href = mp3;
 
 audio.play();
 
-document.getElementById("playBtn").innerText="Pause";
+playBtn.innerText = "Pause";
 
 }catch(err){
 
@@ -405,28 +444,28 @@ alert("Gagal memutar lagu");
 
 }
 
-document
-.getElementById("playBtn")
-.addEventListener("click",()=>{
+playBtn.addEventListener("click",()=>{
 
 if(!audio.src) return;
 
 if(audio.paused){
 
 audio.play();
-playBtn.innerText="Pause";
+playBtn.innerText = "Pause";
 
 }else{
 
 audio.pause();
-playBtn.innerText="Play";
+playBtn.innerText = "Play";
 
 }
 
 });
 
 audio.addEventListener("ended",()=>{
-playBtn.innerText="Play";
+
+playBtn.innerText = "Play";
+
 });
 
 </script>
