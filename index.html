@@ -259,21 +259,24 @@
     statusDiv.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Mencari lagu...';
     resultsList.innerHTML = '';
 
+    // Menggunakan proxy AllOrigins untuk menembus blokir CORS browser
+    const targetUrl = `https://simple-api-lagi.vercel.app/api/search/ytsearch?query=${encodeURIComponent(query)}`;
+    const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`;
+
     try {
-        // Menambahkan mode cors secara eksplisit
-        const response = await fetch(`https://simple-api-lagi.vercel.app/api/search/ytsearch?query=${encodeURIComponent(query)}`, {
-            method: 'GET',
-            headers: { 'Accept': 'application/json' }
-        });
+        const response = await fetch(proxyUrl);
 
         if (!response.ok) {
-            throw new Error(`Server merespons dengan status: ${response.status}`);
+            throw new Error(`Server proxy merespons dengan status: ${response.status}`);
         }
 
-        const data = await response.json();
-        console.log("Raw API Response:", data); // Intip struktur asli di Inspect Element -> Console
+        const resData = await response.json();
+        
+        // AllOrigins membungkus respons asli di dalam properti .contents dalam bentuk string
+        const data = JSON.parse(resData.contents);
+        console.log("Ditembus lewat Proxy:", data);
 
-        // Ambil array hasil video dari berbagai kemungkinan properti response API
+        // Ambil array hasil video
         let tracks = [];
         if (Array.isArray(data)) {
             tracks = data;
@@ -284,7 +287,7 @@
         }
 
         if (tracks.length === 0) {
-            statusDiv.innerText = "Lagu tidak ditemukan atau format API berubah.";
+            statusDiv.innerText = "Lagu tidak ditemukan atau format API kosong.";
             return;
         }
 
@@ -292,7 +295,6 @@
 
         // Tampilkan hasil pencarian
         tracks.forEach(track => {
-            // Abaikan jika objek tidak memiliki URL/Link video
             const videoUrl = track.url || track.link || track.videoId;
             if (!videoUrl) return;
 
@@ -306,7 +308,6 @@
                 </div>
             `;
             
-            // Masukkan URL asli yang ditemukan ke fungsi playTrack
             const finalUrl = videoUrl.includes('http') ? videoUrl : `https://www.youtube.com/watch?v=${videoUrl}`;
             
             card.addEventListener('click', () => playTrack(finalUrl, track.title));
@@ -315,11 +316,9 @@
 
     } catch (error) {
         console.error(error);
-        // Menampilkan pesan eror yang lebih detail agar mudah di-debug
-        statusDiv.innerHTML = `<span style="color: #ef4444;">Gagal mengambil data: ${error.message}.</span><br><small>Cek console log browser untuk detailnya.</small>`;
+        statusDiv.innerHTML = `<span style="color: #ef4444;">Gagal mengambil data: API target kemungkinan down atau wafat.</span>`;
     }
 }
-
         // Fungsi Mendapatkan Link Audio dan Memutarnya
         async function playTrack(youtubeUrl, title) {
             statusDiv.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Menyiapkan audio untuk: <b>${title}</b>...`;
