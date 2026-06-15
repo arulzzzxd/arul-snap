@@ -1,24 +1,30 @@
-export default async function handler(req,res){
+export default async function handler(req, res) {
 
-try{
+  const url = req.query.url;
 
-const { url } = req.query;
+  if (!url) {
+    return res.status(400).json({
+      status: false,
+      message: "URL kosong"
+    });
+  }
 
-const response = await fetch(
-`https://simple-api-lagi.vercel.app/api/download/ytmp3?url=${encodeURIComponent(url)}`
-);
+  try {
 
-const data = await response.json();
+    const response = await fetch(
+      `https://simple-api-lagi.vercel.app/api/download/ytmp3?url=${encodeURIComponent(url)}`
+    );
 
-return res.status(200).json(data);
+    const data = await response.json();
 
-}catch(e){
+    res.status(200).json(data);
 
-return res.status(500).json({
-status:false,
-error:e.message
-});
+  } catch (err) {
 
-}
+    res.status(500).json({
+      status: false,
+      error: err.message
+    });
 
+  }
 }

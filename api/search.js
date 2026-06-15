@@ -1,24 +1,30 @@
-export default async function handler(req,res){
+export default async function handler(req, res) {
 
-try{
+  const query = req.query.query;
 
-const { query } = req.query;
+  if (!query) {
+    return res.status(400).json({
+      status: false,
+      message: "Query kosong"
+    });
+  }
 
-const response = await fetch(
-`https://simple-api-lagi.vercel.app/api/search/ytsearch?query=${encodeURIComponent(query)}`
-);
+  try {
 
-const data = await response.json();
+    const response = await fetch(
+      `https://simple-api-lagi.vercel.app/api/search/ytsearch?query=${encodeURIComponent(query)}`
+    );
 
-return res.status(200).json(data);
+    const data = await response.json();
 
-}catch(e){
+    res.status(200).json(data);
 
-return res.status(500).json({
-status:false,
-error:e.message
-});
+  } catch (err) {
 
-}
+    res.status(500).json({
+      status: false,
+      error: err.message
+    });
 
+  }
 }
