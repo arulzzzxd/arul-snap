@@ -3,201 +3,43 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Arulz Music</title>
+
+<link rel="stylesheet" href="style.css">
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-<style>
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:Poppins,sans-serif;
-}
-
-body{
-background:#121212;
-color:#fff;
-overflow-x:hidden;
-}
-
-.sidebar{
-position:fixed;
-left:0;
-top:0;
-bottom:0;
-width:80px;
-background:#000;
-display:flex;
-flex-direction:column;
-align-items:center;
-padding:20px 10px;
-}
-
-.logo{
-font-size:18px;
-font-weight:700;
-color:#1DB954;
-margin-bottom:30px;
-text-align:center;
-}
-
-.menu{
-width:100%;
-}
-
-.menu a{
-display:block;
-padding:12px 0;
-text-decoration:none;
-color:#aaa;
-text-align:center;
-}
-
-.main{
-margin-left:80px;
-padding:15px;
-padding-bottom:120px;
-}
-
-.search-box{
-display:flex;
-gap:10px;
-margin-bottom:20px;
-}
-
-.search-box input{
-flex:1;
-height:50px;
-border:none;
-outline:none;
-padding:0 20px;
-border-radius:30px;
-background:#242424;
-color:white;
-}
-
-.search-box button{
-width:90px;
-border:none;
-border-radius:30px;
-background:#1DB954;
-font-weight:bold;
-cursor:pointer;
-}
-
-.results{
-display:grid;
-grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
-gap:15px;
-}
-
-.card{
-background:#181818;
-padding:10px;
-border-radius:12px;
-cursor:pointer;
-transition:.3s;
-}
-
-.card:hover{
-background:#282828;
-}
-
-.card img{
-width:100%;
-height:150px;
-object-fit:cover;
-border-radius:10px;
-}
-
-.card h3{
-font-size:13px;
-margin-top:8px;
-}
-
-.card p{
-font-size:11px;
-color:#aaa;
-margin-top:5px;
-}
-
-.player{
-position:fixed;
-left:80px;
-right:0;
-bottom:0;
-background:#181818;
-border-top:1px solid #333;
-padding:10px;
-display:flex;
-align-items:center;
-gap:10px;
-}
-
-.player img{
-width:60px;
-height:60px;
-border-radius:10px;
-object-fit:cover;
-}
-
-.info{
-flex:1;
-overflow:hidden;
-}
-
-.controls{
-display:flex;
-gap:10px;
-}
-
-.controls button{
-border:none;
-padding:10px 15px;
-border-radius:30px;
-cursor:pointer;
-}
-
-.play-btn{
-background:#1DB954;
-}
-
-.download-btn{
-background:#fff;
-}
-
-.loading{
-text-align:center;
-padding:30px;
-grid-column:1/-1;
-}
-</style>
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head>
+
 <body>
 
-<div class="sidebar">
+<header class="header">
 
-<div class="logo">
-🎵<br>Arulz
+<div class="profile">
+
+<div class="avatar">
+<i class="fas fa-user"></i>
 </div>
 
-<div class="menu">
-<a href="#">Home</a>
-<a href="#">Search</a>
-<a href="#">Library</a>
-</div>
+<h1>S-Music</h1>
 
 </div>
 
-<div class="main">
+<button id="searchBtn">
+<i class="fas fa-search"></i>
+</button>
+
+</header>
+
+<div class="search-modal" id="searchModal">
 
 <div class="search-box">
 
 <input
-id="query"
 type="text"
+id="query"
 placeholder="Cari lagu..."
 onkeypress="if(event.key==='Enter') searchMusic()">
 
@@ -207,13 +49,53 @@ Cari
 
 </div>
 
-<div id="results" class="results">
-<div class="loading">
-Cari lagu favoritmu...
-</div>
-</div>
+<div id="searchResults" class="search-results"></div>
 
 </div>
+
+<div class="categories">
+
+<button class="active">Semua</button>
+<button>Pop</button>
+<button>Viral</button>
+<button>Galau</button>
+<button>Indie</button>
+<button>K-Pop</button>
+<button>Dangdut</button>
+
+</div>
+
+<section>
+
+<h2>Terakhir Diputar</h2>
+
+<div id="recentList" class="vertical-list"></div>
+
+</section>
+
+<section>
+
+<h2>Top Hits Indonesia</h2>
+
+<div id="topHits" class="music-grid"></div>
+
+</section>
+
+<section>
+
+<h2>Viral Sekarang</h2>
+
+<div id="viralHits" class="music-grid"></div>
+
+</section>
+
+<section>
+
+<h2>Rilis Terbaru</h2>
+
+<div id="newRelease" class="music-grid"></div>
+
+</section>
 
 <div class="player">
 
@@ -221,25 +103,30 @@ Cari lagu favoritmu...
 id="playerThumb"
 src="https://via.placeholder.com/150">
 
-<div class="info">
-<h4 id="playerTitle">Belum ada lagu</h4>
-<p id="playerArtist">-</p>
+<div class="player-info">
+
+<h4 id="playerTitle">
+Belum ada lagu
+</h4>
+
+<p id="playerArtist">
+-
+</p>
+
 </div>
 
-<div class="controls">
+<div class="player-actions">
 
-<button
-id="playBtn"
-class="play-btn">
-Play
+<button id="playBtn">
+<i class="fas fa-play"></i>
 </button>
 
 <a
 id="downloadBtn"
 target="_blank">
 
-<button class="download-btn">
-Download
+<button>
+<i class="fas fa-download"></i>
 </button>
 
 </a>
@@ -250,141 +137,31 @@ Download
 
 </div>
 
-<script>
+<nav class="bottom-nav">
 
-const results = document.getElementById("results");
-const audio = document.getElementById("audioPlayer");
-const playBtn = document.getElementById("playBtn");
+<button>
+<i class="fas fa-home"></i>
+<span>Home</span>
+</button>
 
-async function searchMusic(){
+<button id="openSearch">
+<i class="fas fa-search"></i>
+<span>Cari</span>
+</button>
 
-const query =
-document.getElementById("query")
-.value.trim();
+<button>
+<i class="fas fa-heart"></i>
+<span>Favorit</span>
+</button>
 
-if(!query) return;
+<button>
+<i class="fas fa-code"></i>
+<span>Dev</span>
+</button>
 
-results.innerHTML =
-'<div class="loading">Mencari lagu...</div>';
+</nav>
 
-try{
-
-const res = await fetch(
-`/api/search?query=${encodeURIComponent(query)}`
-);
-
-const json = await res.json();
-
-const videos =
-json.result?.videos || [];
-
-results.innerHTML = "";
-
-videos.forEach(video=>{
-
-results.innerHTML += `
-<div class="card"
-onclick="playMusic(
-'${encodeURIComponent(video.url)}',
-'${video.thumbnail}',
-'${video.title.replace(/'/g,'')}',
-'${video.author.replace(/'/g,'')}'
-)">
-
-<img src="${video.thumbnail}">
-
-<h3>${video.title}</h3>
-
-<p>${video.author}</p>
-
-</div>
-`;
-
-});
-
-}catch(err){
-
-console.error(err);
-
-results.innerHTML =
-'<div class="loading">❌ Gagal mengambil data</div>';
-
-}
-
-}
-
-async function playMusic(
-url,
-thumb,
-title,
-artist
-){
-
-document.getElementById("playerThumb").src = thumb;
-document.getElementById("playerTitle").innerText = title;
-document.getElementById("playerArtist").innerText = artist;
-
-try{
-
-const res = await fetch(
-`/api/download?url=${encodeURIComponent(
-decodeURIComponent(url)
-)}`
-);
-
-const json = await res.json();
-
-const mp3 =
-json.result?.download?.url;
-
-if(!mp3){
-alert("MP3 tidak ditemukan");
-return;
-}
-
-audio.src = mp3;
-
-document.getElementById("downloadBtn").href = mp3;
-
-audio.play();
-
-playBtn.innerText = "Pause";
-
-}catch(err){
-
-console.error(err);
-
-alert("Gagal memutar lagu");
-
-}
-
-}
-
-playBtn.addEventListener("click",()=>{
-
-if(!audio.src) return;
-
-if(audio.paused){
-
-audio.play();
-playBtn.innerText = "Pause";
-
-}else{
-
-audio.pause();
-playBtn.innerText = "Play";
-
-}
-
-});
-
-audio.addEventListener("ended",()=>{
-
-playBtn.innerText = "Play";
-
-});
-
-</script>
+<script src="script.js"></script>
 
 </body>
 </html>
