@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Arulz Music</title>
 
 <link rel="stylesheet" href="style.css">
@@ -11,89 +12,101 @@
 
 <link rel="stylesheet"
 href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-</head>
 
+</head>
 <body>
 
-<header class="header">
+<header class="topbar">
 
 <div class="profile">
 
 <div class="avatar">
-<i class="fas fa-user"></i>
+A
 </div>
 
-<h1>S-Music</h1>
+<div>
+<h1>Arulz Music</h1>
+<p>Streaming Music</p>
+</div>
 
 </div>
 
-<button id="searchBtn">
+<a href="search.html" class="search-btn">
 <i class="fas fa-search"></i>
-</button>
+</a>
 
 </header>
 
-<div class="search-modal" id="searchModal">
+<section class="banner">
 
-<div class="search-box">
-
-<input
-type="text"
-id="query"
-placeholder="Cari lagu..."
-onkeypress="if(event.key==='Enter') searchMusic()">
-
-<button onclick="searchMusic()">
-Cari
-</button>
-
-</div>
-
-<div id="searchResults" class="search-results"></div>
-
-</div>
-
-<div class="categories">
-
-<button class="active">Semua</button>
-<button>Pop</button>
-<button>Viral</button>
-<button>Galau</button>
-<button>Indie</button>
-<button>K-Pop</button>
-<button>Dangdut</button>
-
-</div>
-
-<section>
-
-<h2>Terakhir Diputar</h2>
-
-<div id="recentList" class="vertical-list"></div>
-
-</section>
-
-<section>
-
+<div class="banner-content">
 <h2>Top Hits Indonesia</h2>
-
-<div id="topHits" class="music-grid"></div>
-
-</section>
-
-<section>
-
-<h2>Viral Sekarang</h2>
-
-<div id="viralHits" class="music-grid"></div>
+<p>Dengarkan lagu populer hari ini</p>
+</div>
 
 </section>
 
 <section>
 
-<h2>Rilis Terbaru</h2>
+<h2 class="section-title">
+Terakhir Diputar
+</h2>
 
-<div id="newRelease" class="music-grid"></div>
+<div id="recentSongs" class="vertical-list">
+
+<div class="loading">
+Memuat lagu...
+</div>
+
+</div>
+
+</section>
+
+<section>
+
+<h2 class="section-title">
+Top Hits Indonesia
+</h2>
+
+<div id="topHits" class="music-grid">
+
+<div class="loading">
+Memuat lagu...
+</div>
+
+</div>
+
+</section>
+
+<section>
+
+<h2 class="section-title">
+Viral TikTok
+</h2>
+
+<div id="viralHits" class="music-grid">
+
+<div class="loading">
+Memuat lagu...
+</div>
+
+</div>
+
+</section>
+
+<section>
+
+<h2 class="section-title">
+Musik Terbaru
+</h2>
+
+<div id="newRelease" class="music-grid">
+
+<div class="loading">
+Memuat lagu...
+</div>
+
+</div>
 
 </section>
 
@@ -101,7 +114,7 @@ Cari
 
 <img
 id="playerThumb"
-src="https://via.placeholder.com/150">
+src="https://via.placeholder.com/100">
 
 <div class="player-info">
 
@@ -115,7 +128,7 @@ Belum ada lagu
 
 </div>
 
-<div class="player-actions">
+<div class="player-controls">
 
 <button id="playBtn">
 <i class="fas fa-play"></i>
@@ -139,25 +152,25 @@ target="_blank">
 
 <nav class="bottom-nav">
 
-<button>
+<a href="index.html">
 <i class="fas fa-home"></i>
 <span>Home</span>
-</button>
+</a>
 
-<button id="openSearch">
+<a href="search.html">
 <i class="fas fa-search"></i>
 <span>Cari</span>
-</button>
+</a>
 
-<button>
+<a href="#">
 <i class="fas fa-heart"></i>
 <span>Favorit</span>
-</button>
+</a>
 
-<button>
-<i class="fas fa-code"></i>
-<span>Dev</span>
-</button>
+<a href="#">
+<i class="fas fa-user"></i>
+<span>Akun</span>
+</a>
 
 </nav>
 

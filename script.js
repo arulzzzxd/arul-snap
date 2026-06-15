@@ -1,222 +1,163 @@
-const audio = document.getElementById("audioPlayer");
+const API_SEARCH = "/api/search";
+const API_DOWNLOAD = "/api/download";
+
+const topHits = document.getElementById("topHits");
+const viralHits = document.getElementById("viralHits");
+const newRelease = document.getElementById("newRelease");
+const recentSongs = document.getElementById("recentSongs");
+
+const audioPlayer = document.getElementById("audioPlayer");
 const playBtn = document.getElementById("playBtn");
+const playerTitle = document.getElementById("playerTitle");
+const playerArtist = document.getElementById("playerArtist");
+const playerThumb = document.getElementById("playerThumb");
+const downloadBtn = document.getElementById("downloadBtn");
 
-const searchModal =
-document.getElementById("searchModal");
+let isPlaying = false;
 
-document
-.getElementById("searchBtn")
-.onclick = () => {
-searchModal.style.display="block";
-};
+playBtn.addEventListener("click", () => {
+  if (!audioPlayer.src) return;
 
-document
-.getElementById("openSearch")
-.onclick = () => {
-searchModal.style.display="block";
-};
-
-window.onload = async () => {
-
-loadCategory(
-"pop indonesia",
-"topHits"
-);
-
-loadCategory(
-"lagu viral tiktok",
-"viralHits"
-);
-
-loadCategory(
-"musik terbaru indonesia",
-"newRelease"
-);
-
-loadRecent();
-
-};
-
-async function loadCategory(
-keyword,
-containerId
-){
-
-const res = await fetch(
-`/api/search?query=${encodeURIComponent(keyword)}`
-);
-
-const json = await res.json();
-
-const songs =
-json.result?.videos || [];
-
-const container =
-document.getElementById(containerId);
-
-container.innerHTML = "";
-
-songs.forEach(song => {
-
-container.innerHTML += `
-<div class="music-card"
-onclick="playMusic(
-'${encodeURIComponent(song.url)}',
-'${song.thumbnail}',
-'${song.title.replace(/'/g,'')}',
-'${song.author.replace(/'/g,'')}'
-)">
-<img src="${song.thumbnail}">
-<h4>${song.title}</h4>
-<span>${song.author}</span>
-</div>
-`;
-
+  if (isPlaying) {
+    audioPlayer.pause();
+    playBtn.innerHTML = '<i class="fas fa-play"></i>';
+    isPlaying = false;
+  } else {
+    audioPlayer.play();
+    playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+    isPlaying = true;
+  }
 });
 
-}
-
-async function loadRecent(){
-
-const res = await fetch(
-`/api/search?query=top hits indonesia`
-);
-
-const json = await res.json();
-
-const songs =
-json.result?.videos || [];
-
-const recent =
-document.getElementById("recentList");
-
-recent.innerHTML="";
-
-songs.slice(0,2).forEach(song=>{
-
-recent.innerHTML += `
-<div class="song-row"
-onclick="playMusic(
-'${encodeURIComponent(song.url)}',
-'${song.thumbnail}',
-'${song.title.replace(/'/g,'')}',
-'${song.author.replace(/'/g,'')}'
-)">
-<img src="${song.thumbnail}">
-<div class="song-info">
-<h4>${song.title}</h4>
-<p>${song.author}</p>
-</div>
-</div>
-`;
-
+audioPlayer.addEventListener("ended", () => {
+  playBtn.innerHTML = '<i class="fas fa-play"></i>';
+  isPlaying = false;
 });
 
+async function searchSongs(keyword) {
+  try {
+    const res = await fetch(
+      `${API_SEARCH}?query=${encodeURIComponent(keyword)}`
+    );
+
+    const json = await res.json();
+
+    return json.result.videos || [];
+  } catch (err) {
+    console.error(err);
+    return [];
+  }
 }
 
-async function searchMusic(){
-
-const query =
-document.getElementById("query")
-.value.trim();
-
-if(!query) return;
-
-const results =
-document.getElementById("searchResults");
-
-results.innerHTML="Loading...";
-
-const res = await fetch(
-`/api/search?query=${encodeURIComponent(query)}`
-);
-
-const json = await res.json();
-
-const songs =
-json.result?.videos || [];
-
-results.innerHTML="";
-
-songs.forEach(song=>{
-
-results.innerHTML += `
-<div class="music-card"
-onclick="playMusic(
-'${encodeURIComponent(song.url)}',
-'${song.thumbnail}',
-'${song.title.replace(/'/g,'')}',
-'${song.author.replace(/'/g,'')}'
-)">
-<img src="${song.thumbnail}">
-<h4>${song.title}</h4>
-<span>${song.author}</span>
-</div>
-`;
-
-});
-
+function createCard(song) {
+  return `
+    <div class="music-card" onclick='playSong(${JSON.stringify(song)})'>
+      <img src="${song.thumbnail}">
+      <div class="music-info">
+        <h4>${song.title}</h4>
+        <p>${song.author?.name || "Unknown"}</p>
+      </div>
+    </div>
+  `;
 }
 
-async function playMusic(
-url,
-thumb,
-title,
-artist
-){
-
-document.getElementById(
-"playerThumb"
-).src = thumb;
-
-document.getElementById(
-"playerTitle"
-).innerText = title;
-
-document.getElementById(
-"playerArtist"
-).innerText = artist;
-
-const res = await fetch(
-`/api/download?url=${encodeURIComponent(
-decodeURIComponent(url)
-)}`
-);
-
-const json = await res.json();
-
-const mp3 =
-json.result?.download?.url;
-
-audio.src = mp3;
-
-document
-.getElementById("downloadBtn")
-.href = mp3;
-
-audio.play();
-
-playBtn.innerHTML =
-'<i class="fas fa-pause"></i>';
-
+function createRow(song) {
+  return `
+    <div class="song-row" onclick='playSong(${JSON.stringify(song)})'>
+      <img src="${song.thumbnail}">
+      <div>
+        <h4>${song.title}</h4>
+        <p>${song.author?.name || "Unknown"}</p>
+      </div>
+    </div>
+  `;
 }
 
-playBtn.onclick = () => {
+async function loadSection(keyword, container, type = "grid") {
+  const songs = await searchSongs(keyword);
 
-if(audio.paused){
+  if (!songs.length) {
+    container.innerHTML = `
+      <div class="loading">
+        Tidak ada lagu ditemukan
+      </div>
+    `;
+    return;
+  }
 
-audio.play();
-
-playBtn.innerHTML =
-'<i class="fas fa-pause"></i>';
-
-}else{
-
-audio.pause();
-
-playBtn.innerHTML =
-'<i class="fas fa-play"></i>';
-
+  if (type === "row") {
+    container.innerHTML = songs
+      .slice(0, 8)
+      .map(createRow)
+      .join("");
+  } else {
+    container.innerHTML = songs
+      .slice(0, 12)
+      .map(createCard)
+      .join("");
+  }
 }
 
+window.playSong = async function(song) {
+  try {
+
+    playerTitle.textContent = song.title;
+    playerArtist.textContent =
+      song.author?.name || "Unknown";
+
+    playerThumb.src = song.thumbnail;
+
+    playBtn.innerHTML =
+      '<i class="fas fa-spinner fa-spin"></i>';
+
+    const res = await fetch(
+      `${API_DOWNLOAD}?url=${encodeURIComponent(song.url)}`
+    );
+
+    const json = await res.json();
+
+    const musicUrl = json.result.download.url;
+
+    audioPlayer.src = musicUrl;
+
+    downloadBtn.href = musicUrl;
+
+    await audioPlayer.play();
+
+    isPlaying = true;
+
+    playBtn.innerHTML =
+      '<i class="fas fa-pause"></i>';
+
+  } catch (err) {
+    console.error(err);
+
+    alert("Gagal memutar lagu");
+  }
 };
+
+async function init() {
+
+  loadSection(
+    "top hits indonesia",
+    topHits
+  );
+
+  loadSection(
+    "lagu viral tiktok",
+    viralHits
+  );
+
+  loadSection(
+    "musik terbaru 2026",
+    newRelease
+  );
+
+  loadSection(
+    "top music indonesia",
+    recentSongs,
+    "row"
+  );
+}
+
+init();
