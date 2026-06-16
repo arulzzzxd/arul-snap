@@ -4,7 +4,7 @@ const searchBtn = document.getElementById("searchBtn");
 
 let debounceTimer = null;[cite: 5]
 
-// 1. Event saat mengetik (Debounce)
+// 1. Event saat mengetik otomatis (Debounce)
 searchInput.addEventListener("input", (e) => {[cite: 5]
     const query = e.target.value.trim();[cite: 5]
     clearTimeout(debounceTimer);[cite: 5]
@@ -19,15 +19,17 @@ searchInput.addEventListener("input", (e) => {[cite: 5]
     }, 500);
 });
 
-// 2. Event saat tombol "Cari" Berwarna Hijau Diklik
-searchBtn.addEventListener("click", () => {
-    const query = searchInput.value.trim();
-    if (query.length > 0) {
-        searchSongs(query);
-    }
-});
+// 2. Event saat tombol hijau "Cari" diklik
+if (searchBtn) {
+    searchBtn.addEventListener("click", () => {
+        const query = searchInput.value.trim();
+        if (query.length > 0) {
+            searchSongs(query);
+        }
+    });
+}
 
-// 3. Event saat menekan tombol "Enter" di Keyboard HP / Laptop
+// 3. Event saat menekan Enter di keyboard HP
 searchInput.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
         const query = searchInput.value.trim();
@@ -37,7 +39,7 @@ searchInput.addEventListener("keydown", (e) => {
     }
 });
 
-// Fungsi Fetch ke Serverless Backend Vercel milikmu
+// Fungsi Fetch data ke serverless backend lokal Vercel
 async function searchSongs(query) {
     try {
         searchResults.innerHTML = `<p class="loading">Searching...</p>`;[cite: 5]
@@ -46,6 +48,8 @@ async function searchSongs(query) {
         if (!res.ok) throw new Error("Network error");[cite: 5]
 
         const data = await res.json();
+        
+        // Pastikan yang dikirim ke render adalah array bersih
         renderResults(data.result || []);
     } catch (err) {
         console.error(err);[cite: 5]
@@ -53,26 +57,32 @@ async function searchSongs(query) {
     }
 }
 
-// Render hasil search ke komponen UI
+// Render hasil data ke struktur HTML
 function renderResults(songs) {
-    if (!songs.length) {[cite: 5]
+    if (!songs || !songs.length) {[cite: 5]
         searchResults.innerHTML = `<p class="empty">Lagu tidak ditemukan.</p>`;[cite: 5]
         return;[cite: 5]
     }
 
-    searchResults.innerHTML = songs.map(song => `
-        <div class="song-item" onclick="playSong('${song.url}', '${song.title.replace(/'/g, "\\'")}', '${song.artist.replace(/'/g, "\\'")}', '${song.image}')">
-            <img src="${song.image}" alt="${song.title}">
-            <div class="song-info">
-                <h4>${song.title}</h4>
-                <p>${song.artist}</p>
+    searchResults.innerHTML = songs.map(song => {
+        // Amankan string judul & nama artis dari karakter petik (') yang bisa bikin crash HTML
+        const safeTitle = song.title.replace(/'/g, "\\'");
+        const safeArtist = song.artist.replace(/'/g, "\\'");
+
+        return `
+            <div class="song-item" onclick="playSong('${song.url}', '${safeTitle}', '${safeArtist}', '${song.image}')">
+                <img src="${song.image}" alt="${song.title}">
+                <div class="song-info">
+                    <h4>${song.title}</h4>
+                    <p>${song.artist}</p>
+                </div>
+                <button class="play-btn">▶</button>
             </div>
-            <button class="play-btn"><i class="fas fa-play"></i></button>
-        </div>
-    `).join("");[cite: 5]
+        `;
+    }).join("");[cite: 5]
 }
 
-// Melempar data ke halaman utama (index.html) menggunakan localStorage
+// Melempar data lagu ke index.html lewat localStorage
 function playSong(url, title, artist, image) {
     const songData = { url, title, artist, image };
     localStorage.setItem("autoplay_song", JSON.stringify(songData));
