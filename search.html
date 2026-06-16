@@ -1,156 +1,161 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cari Musik - Arulz Music</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    <style>
-        .search-page {
-            padding: 20px;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        .search-box {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
+<title>Cari Musik - Arulz Music</title>
 
-        .search-box input {
-            flex: 1;
-            padding: 14px;
-            border: none;
-            border-radius: 10px;
-            background: #1d1d1d;
-            color: white;
-            font-size: 16px;
-            outline: none;
-        }
+<link rel="stylesheet" href="style.css">
 
-        .search-box button {
-            border: none;
-            padding: 14px 20px;
-            border-radius: 10px;
-            background: #1db954;
-            color: white;
-            cursor: pointer;
-            font-size: 16px;
-            transition: background 0.2s;
-        }
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
-        .search-box button:hover {
-            background: #1aa34a;
-        }
+<style>
+.search-page{
+    padding:20px;
+}
 
-        /* Styling List Hasil Pencarian */
-        .result-grid {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
+.search-box{
+    display:flex;
+    gap:10px;
+    margin-bottom:20px;
+}
 
-        .song-item {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            background: #1d1d1d;
-            padding: 10px;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: background 0.2s, transform 0.2s;
-        }
+.search-box input{
+    flex:1;
+    padding:14px;
+    border:none;
+    border-radius:10px;
+    background:#1d1d1d;
+    color:white;
+    font-size: 16px;
+    outline: none;
+}
 
-        .song-item:hover {
-            background: #282828;
-            transform: scale(1.01);
-        }
+.search-box button{
+    border:none;
+    padding:14px 20px;
+    border-radius:10px;
+    background:#1db954;
+    color:white;
+    cursor: pointer;
+    font-size: 16px;
+}
 
-        .song-item img {
-            width: 60px;
-            height: 60px;
-            object-fit: cover;
-            border-radius: 8px;
-        }
+/* Memastikan result grid vertikal dan rapi */
+.result-grid{
+    display:flex;
+    flex-direction: column;
+    gap:12px;
+}
 
-        .song-info {
-            flex: 1;
-            overflow: hidden;
-        }
+.song-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background: #1d1d1d;
+    padding: 10px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: 0.2s;
+}
 
-        .song-info h4 {
-            font-size: 14px;
-            margin-bottom: 4px;
-            color: white;
-            white-space: nowrap;
-            text-overflow: ellipsis;
-            overflow: hidden;
-        }
+.song-item:hover {
+    background: #282828;
+}
 
-        .song-info p {
-            font-size: 12px;
-            color: #aaa;
-            white-space: nowrap;
-            text-overflow: ellipsis;
-            overflow: hidden;
-        }
+.song-item img {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 8px;
+}
 
-        .play-btn {
-            background: none;
-            border: none;
-            color: #1db954;
-            font-size: 18px;
-            padding-right: 10px;
-            cursor: pointer;
-        }
+.song-info {
+    flex: 1;
+}
 
-        .loading, .empty, .error {
-            text-align: center;
-            color: #aaa;
-            width: 100%;
-            padding: 40px 20px;
-            font-size: 14px;
-        }
-    </style>
+.song-info h4 {
+    font-size: 14px;
+    margin-bottom: 4px;
+    color: white;
+}
+
+.song-info p {
+    font-size: 12px;
+    color: #aaa;
+}
+
+.play-btn {
+    background: none;
+    border: none;
+    color: #1db954;
+    font-size: 18px;
+    padding-right: 10px;
+    cursor: pointer;
+}
+
+.loading, .empty, .error {
+    text-align: center;
+    color: #aaa;
+    width: 100%;
+    padding: 20px;
+}
+</style>
+
 </head>
 <body>
 
-    <header class="topbar">
-        <h1>Cari Musik</h1>
-        <a href="index.html" class="search-btn">
-            <i class="fas fa-home"></i>
-        </a>
-    </header>
+<header class="topbar">
+    <h1>Cari Musik</h1>
 
-    <main class="container search-page">
-        
-        <div class="search-box">
-            <input 
-                type="text" 
-                id="searchInput" 
-                placeholder="Cari lagu, artis, atau genre..." 
-                autocomplete="off">
-            <button id="searchBtn">
-                <i class="fas fa-search"></i> Cari
-            </button>
-        </div>
+    <a href="index.html" class="search-btn">
+        <i class="fas fa-home"></i>
+    </a>
+</header>
 
-        <div id="searchResults" class="result-grid">
-            </div>
+<div class="search-page">
 
-    </main>
+    <div class="search-box">
 
-    <nav class="bottom-nav">
-        <a href="index.html">
-            <i class="fas fa-home"></i>
-            <span>Home</span>
-        </a>
-        <a href="search.html" class="active">
-            <i class="fas fa-search"></i>
-            <span>Cari</span>
-        </a>
-    </nav>
+        <input
+        type="text"
+        id="searchInput"
+        placeholder="Cari lagu..."
+        autocomplete="off">
 
-    <script src="search.js"></script>
+        <button id="searchBtn">
+            <i class="fas fa-search"></i> Cari
+        </button>
+
+    </div>
+
+    <!-- Menjaga ID searchResults tetap berupa div murni seperti sedia kala -->
+    <div
+    id="searchResults"
+    class="result-grid">
+
+    </div>
+
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+
+    <a href="index.html">
+        <i class="fas fa-home"></i>
+        <span>Home</span>
+    </a>
+
+    <a href="search.html" class="active">
+        <i class="fas fa-search"></i>
+        <span>Cari</span>
+    </a>
+
+</nav>
+
+<script src="search.js"></script>
+
 </body>
 </html>
