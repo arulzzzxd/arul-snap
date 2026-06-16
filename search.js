@@ -42,30 +42,19 @@ searchInput.addEventListener("keydown", (e) => {
 // Fungsi Tembak API Langsung dari Client
 async function searchSongs(query) {
     try {
-        // Tampilkan status pencarian ke layar terlebih dahulu
-        searchResults.innerHTML = `<p class="loading"><i class="fas fa-spinner fa-spin"></i> Sedang mencari lagu "${query}"...</p>`;
+        searchResults.innerHTML = `<p class="loading">Sedang mencari...</p>`;
 
-        // Langsung tembak ke API tujuan utama untuk menghindari bottleneck internal Vercel Serverless
-        const response = await fetch(`https://simple-api-lagi.vercel.app/api/search/ytsearch?query=${encodeURIComponent(query)}`);
+        // HANYA panggil endpoint lokal kamu!
+        const res = await fetch(`/api/search?query=${encodeURIComponent(query)}`);
         
-        if (!response.ok) {
-            throw new Error(`Server API merespon dengan status: ${response.status}`);
-        }
+        if (!res.ok) throw new Error("Gagal menyambung ke server");
 
-        const data = await response.json();
-        console.log("Data API Berhasil Diterima:", data);
-
-        // Validasi struktur JSON sesuai skema murninya
-        if (data && data.status && data.result && data.result.videos) {
-            renderResults(data.result.videos);
-        } else {
-            searchResults.innerHTML = `<p class="empty">Format data dari server tidak sesuai atau kosong.</p>`;
-        }
-
+        const data = await res.json();
+        
+        // Render data (pastikan data.result adalah array)
+        renderResults(data.result || []);
     } catch (err) {
-        console.error("Detail Error Pencarian:", err);
-        // Cetak pesan error asli ke UI agar kamu bisa melihat kendalanya langsung di HP
-        searchResults.innerHTML = `<p class="error"><i class="fas fa-exclamation-triangle"></i> Terjadi Kesalahan: ${err.message}</p>`;
+        searchResults.innerHTML = `<p class="error">Error: ${err.message}</p>`;
     }
 }
 
