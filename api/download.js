@@ -10,7 +10,7 @@ export default async function handler(req, res) {
 
   try {
     const response = await fetch(
-      `https://api-arulzxd-vvipclouds.vercel.app/api/download/ytmp3?url=${encodeURIComponent(url)}`
+      `https://api-arulzxd-vvipclouds.vercel.app/api/download/ytmp3?apikey=arulzxd-keys&url=${encodeURIComponent(url)}`
     );
 
     if (!response.ok) throw new Error("Gagal mengunduh audio dari API pusat");
