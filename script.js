@@ -287,27 +287,22 @@ async function loadSection(
 /* =========================
    PLAYER (Update pada bagian ekstraksi data lagu)
 ========================= */
+// Cari potongan kode ini di dalam script.js milikmu, lalu perbarui jalurnya:
 async function playSong(song, index = 0) {
     try {
         currentIndex = index;
-
         playerTitle.textContent = song.title;
-        
-        // Menyesuaikan dengan properti .artist atau .author
         playerArtist.textContent = song.artist || song.author?.name || "Unknown Artist";
         
-        // Menyesuaikan dengan properti .image atau .thumbnail
-        playerThumb.src = song.image || song.thumbnail;
+        // Memastikan fallback membaca properti .thumbnail atau .image
+        playerThumb.src = song.thumbnail || song.image || "https://placehold.co/80x80";
 
         fpTitle.textContent = playerTitle.textContent;
         fpArtist.textContent = playerArtist.textContent;
         fpThumb.src = playerThumb.src;
 
-        const res = await fetch(
-            `${API_DOWNLOAD}?url=${encodeURIComponent(song.url)}`
-        );
+        const res = await fetch(`${API_DOWNLOAD}?url=${encodeURIComponent(song.url)}`);
         const data = await res.json();
-
         if (!data.status) throw new Error("Download gagal");
 
         audioPlayer.src = data.result.download;
@@ -316,10 +311,6 @@ async function playSong(song, index = 0) {
         isPlaying = true;
         playBtn.innerHTML = '<i class="fas fa-pause"></i>';
         bigPlay.innerHTML = '<i class="fas fa-pause"></i>';
-
-        downloadBtn.onclick = () => {
-            window.open(data.result.download, "_blank");
-        };
 
         saveRecent(song);
     } catch (err) {
