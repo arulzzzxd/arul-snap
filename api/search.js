@@ -10,7 +10,7 @@ export default async function handler(req, res) {
 
   try {
     const response = await fetch(
-      `https://simple-api-lagi.vercel.app/api/search/ytsearch?query=${encodeURIComponent(query)}`
+      `https://api-arulzxd-vvipclouds.vercel.app/api/search/ytsearch?query=${encodeURIComponent(query)}`
     );
     
     if (!response.ok) throw new Error("Gagal mengambil data dari API pusat");
