@@ -1,21 +1,21 @@
-const searchInput = document.getElementById("searchInput");[cite: 10]
-const searchResults = document.getElementById("searchResults");[cite: 10]
+const searchInput = document.getElementById("searchInput");[cite: 5]
+const searchResults = document.getElementById("searchResults");[cite: 5]
 const searchBtn = document.getElementById("searchBtn");
 
-let debounceTimer = null;[cite: 10]
+let debounceTimer = null;[cite: 5]
 
 // 1. Event saat mengetik (Debounce)
-searchInput.addEventListener("input", (e) => {[cite: 10]
-    const query = e.target.value.trim();[cite: 10]
-    clearTimeout(debounceTimer);[cite: 10]
+searchInput.addEventListener("input", (e) => {[cite: 5]
+    const query = e.target.value.trim();[cite: 5]
+    clearTimeout(debounceTimer);[cite: 5]
 
-    if (query.length === 0) {[cite: 10]
-        searchResults.innerHTML = "";[cite: 10]
-        return;[cite: 10]
+    if (query.length === 0) {[cite: 5]
+        searchResults.innerHTML = "";[cite: 5]
+        return;[cite: 5]
     }
 
-    debounceTimer = setTimeout(() => {[cite: 10]
-        searchSongs(query);[cite: 10]
+    debounceTimer = setTimeout(() => {[cite: 5]
+        searchSongs(query);[cite: 5]
     }, 500);
 });
 
@@ -40,7 +40,7 @@ searchInput.addEventListener("keydown", (e) => {
 // Fungsi Fetch ke Serverless Backend Vercel milikmu
 async function searchSongs(query) {
     try {
-        searchResults.innerHTML = `<p class="loading">Searching...</p>`;[cite: 10]
+        searchResults.innerHTML = `<p class="loading">Searching...</p>`;[cite: 5]
 
         const res = await fetch(`/api/search?query=${encodeURIComponent(query)}`);
         if (!res.ok) throw new Error("Network error");[cite: 5]
@@ -48,16 +48,16 @@ async function searchSongs(query) {
         const data = await res.json();
         renderResults(data.result || []);
     } catch (err) {
-        console.error(err);[cite: 10]
+        console.error(err);[cite: 5]
         searchResults.innerHTML = `<p class="error">Gagal mencari lagu.</p>`;[cite: 5]
     }
 }
 
 // Render hasil search ke komponen UI
 function renderResults(songs) {
-    if (!songs.length) {[cite: 10]
+    if (!songs.length) {[cite: 5]
         searchResults.innerHTML = `<p class="empty">Lagu tidak ditemukan.</p>`;[cite: 5]
-        return;[cite: 10]
+        return;[cite: 5]
     }
 
     searchResults.innerHTML = songs.map(song => `
@@ -79,4 +79,4 @@ function playSong(url, title, artist, image) {
     window.location.href = "index.html";
 }
 
-window.playSong = playSong;[cite: 10]
+window.playSong = playSong;[cite: 5]
