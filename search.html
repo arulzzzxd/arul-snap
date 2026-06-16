@@ -1,87 +1,156 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cari Musik - Arulz Music</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <style>
+        .search-page {
+            padding: 20px;
+        }
 
-<title>Cari Musik - Arulz Music</title>
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
 
-<link rel="stylesheet" href="style.css">
+        .search-box input {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            background: #1d1d1d;
+            color: white;
+            font-size: 16px;
+            outline: none;
+        }
 
-<link rel="stylesheet"
-href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+        .search-box button {
+            border: none;
+            padding: 14px 20px;
+            border-radius: 10px;
+            background: #1db954;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.2s;
+        }
 
-<style>
-.search-page{
-    padding:20px;
-}
+        .search-box button:hover {
+            background: #1aa34a;
+        }
 
-.search-box{
-    display:flex;
-    gap:10px;
-    margin-bottom:20px;
-}
+        /* Styling List Hasil Pencarian */
+        .result-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
 
-.search-box input{
-    flex:1;
-    padding:14px;
-    border:none;
-    border-radius:10px;
-    background:#1d1d1d;
-    color:white;
-}
+        .song-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: #1d1d1d;
+            padding: 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.2s;
+        }
 
-.search-box button{
-    border:none;
-    padding:14px 20px;
-    border-radius:10px;
-    background:#1db954;
-    color:white;
-}
+        .song-item:hover {
+            background: #282828;
+            transform: scale(1.01);
+        }
 
-.result-grid{
-    display:grid;
-    grid-template-columns:
-    repeat(auto-fill,minmax(150px,1fr));
-    gap:15px;
-}
-</style>
+        .song-item img {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
 
+        .song-info {
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .song-info h4 {
+            font-size: 14px;
+            margin-bottom: 4px;
+            color: white;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
+        }
+
+        .song-info p {
+            font-size: 12px;
+            color: #aaa;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
+        }
+
+        .play-btn {
+            background: none;
+            border: none;
+            color: #1db954;
+            font-size: 18px;
+            padding-right: 10px;
+            cursor: pointer;
+        }
+
+        .loading, .empty, .error {
+            text-align: center;
+            color: #aaa;
+            width: 100%;
+            padding: 40px 20px;
+            font-size: 14px;
+        }
+    </style>
 </head>
 <body>
 
-<header class="topbar">
-    <h1>Cari Musik</h1>
+    <header class="topbar">
+        <h1>Cari Musik</h1>
+        <a href="index.html" class="search-btn">
+            <i class="fas fa-home"></i>
+        </a>
+    </header>
 
-    <a href="index.html" class="search-btn">
-        <i class="fas fa-home"></i>
-    </a>
-</header>
+    <main class="container search-page">
+        
+        <div class="search-box">
+            <input 
+                type="text" 
+                id="searchInput" 
+                placeholder="Cari lagu, artis, atau genre..." 
+                autocomplete="off">
+            <button id="searchBtn">
+                <i class="fas fa-search"></i> Cari
+            </button>
+        </div>
 
-<div class="search-page">
+        <div id="searchResults" class="result-grid">
+            </div>
 
-    <div class="search-box">
+    </main>
 
-        <input
-        type="text"
-        id="searchInput"
-        placeholder="Cari lagu...">
+    <nav class="bottom-nav">
+        <a href="index.html">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </a>
+        <a href="search.html" class="active">
+            <i class="fas fa-search"></i>
+            <span>Cari</span>
+        </a>
+    </nav>
 
-        <button id="searchBtn">
-            Cari
-        </button>
-
-    </div>
-
-    <div
-    id="searchResults"
-    class="result-grid">
-
-    </div>
-
-</div>
-
-<script src="search.js"></script>
-
+    <script src="search.js"></script>
 </body>
 </html>
