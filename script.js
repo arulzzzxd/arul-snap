@@ -20,6 +20,8 @@ const fpArtist = document.getElementById("fpArtist");
 const fpThumb = document.getElementById("fpThumb");
 
 const progress = document.getElementById("progress");
+const currentTimeEl = document.getElementById("currentTime");
+const durationEl = document.getElementById("duration");
 const bigPlay = document.getElementById("bigPlay");
 const nextBtn = document.getElementById("nextBtn");
 const prevBtn = document.getElementById("prevBtn");
@@ -126,7 +128,12 @@ async function playSong(song, index = 0) {
         bigPlay.innerHTML = '<i class="fas fa-pause"></i>';
 
         downloadBtn.onclick = () => {
-            window.open(streamUrl, "_blank");
+            const a = document.createElement("a");
+            a.href = streamUrl;
+            a.download = `${song.title}.mp3`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
         };
 
         saveRecent(song);
@@ -157,6 +164,13 @@ nextBtn.addEventListener("click", playNext);
 prevBtn.addEventListener("click", playPrev);
 audioPlayer.addEventListener("ended", playNext);
 
+function formatTime(sec) {
+    if (!sec || isNaN(sec)) return "0:00";
+    const m = Math.floor(sec / 60);
+    const s = Math.floor(sec % 60);
+    return `${m}:${String(s).padStart(2,"0")}`;
+}
+
 /* =========================
    PROGRESS BAR
 ========================= */
@@ -164,6 +178,8 @@ audioPlayer.addEventListener("timeupdate", () => {
     if (!audioPlayer.duration) return;
     const percent = (audioPlayer.currentTime / audioPlayer.duration) * 100;
     progress.style.width = percent + "%";
+    currentTimeEl.textContent = formatTime(audioPlayer.currentTime);
+    durationEl.textContent = formatTime(audioPlayer.duration);
 });
 
 /* =========================

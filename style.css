@@ -281,3 +281,4 @@ section h2{
 .bottom-nav a.active{
     color:#1db954;
 }
+.time-row{display:flex;justify-content:space-between;margin-bottom:8px;font-size:12px;color:#aaa;}
