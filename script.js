@@ -1,4 +1,3 @@
-
 const API_SEARCH = "/api/search";
 const API_DOWNLOAD = "/api/download";
 
@@ -32,335 +31,230 @@ let isPlaying = false;
 /* =========================
    RECENT SONGS
 ========================= */
-
 function saveRecent(song) {
-    let recent =
-        JSON.parse(localStorage.getItem("recentSongs")) || [];
-
-    recent = recent.filter(
-        item => item.url !== song.url
-    );
-
+    let recent = JSON.parse(localStorage.getItem("recentSongs")) || [];
+    recent = recent.filter(item => item.url !== song.url);
     recent.unshift(song);
-
     recent = recent.slice(0, 20);
-
-    localStorage.setItem(
-        "recentSongs",
-        JSON.stringify(recent)
-    );
-
+    localStorage.setItem("recentSongs", JSON.stringify(recent));
     renderRecentSongs();
 }
 
 function renderRecentSongs() {
-    const recent =
-        JSON.parse(localStorage.getItem("recentSongs")) || [];
+    const recent = JSON.parse(localStorage.getItem("recentSongs")) || [];
 
     if (!recent.length) {
-        recentSongs.innerHTML =
-            `<div class="loading">
-                Belum ada lagu diputar
-            </div>`;
+        recentSongs.innerHTML = `<div class="loading">Belum ada lagu diputar</div>`;
         return;
     }
 
-    recentSongs.innerHTML =
-        recent.map(createRow).join("");
+    recentSongs.innerHTML = recent.map(createRow).join("");
 
-    document
-        .querySelectorAll(".recent-item")
-        .forEach((item, index) => {
-
-            item.addEventListener(
-                "click",
-                () => {
-                    playSong(recent[index], index);
-                }
-            );
-
+    document.querySelectorAll(".recent-item").forEach((item, index) => {
+        item.addEventListener("click", () => {
+            playSong(recent[index], index);
         });
+    });
 }
 
 /* =========================
-   PLAYER
+   PLAYER ACTIONS
 ========================= */
-
 function openPlayer() {
     fullPlayer.classList.add("show");
-
-    fpTitle.textContent =
-        playerTitle.textContent;
-
-    fpArtist.textContent =
-        playerArtist.textContent;
-
-    fpThumb.src =
-        playerThumb.src;
+    fpTitle.textContent = playerTitle.textContent;
+    fpArtist.textContent = playerArtist.textContent;
+    fpThumb.src = playerThumb.src;
 }
 
 function closePlayer() {
     fullPlayer.classList.remove("show");
 }
 
-document
-    .querySelector(".player")
-    .addEventListener(
-        "click",
-        openPlayer
-    );
+document.querySelector(".player").addEventListener("click", openPlayer);
 
 function togglePlay() {
-
     if (!audioPlayer.src) return;
 
     if (isPlaying) {
-
         audioPlayer.pause();
-
         isPlaying = false;
-
-        playBtn.innerHTML =
-            '<i class="fas fa-play"></i>';
-
-        bigPlay.innerHTML =
-            '<i class="fas fa-play"></i>';
-
+        playBtn.innerHTML = '<i class="fas fa-play"></i>';
+        bigPlay.innerHTML = '<i class="fas fa-play"></i>';
     } else {
-
         audioPlayer.play();
-
         isPlaying = true;
-
-        playBtn.innerHTML =
-            '<i class="fas fa-pause"></i>';
-
-        bigPlay.innerHTML =
-            '<i class="fas fa-pause"></i>';
+        playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+        bigPlay.innerHTML = '<i class="fas fa-pause"></i>';
     }
 }
 
-playBtn.addEventListener(
-    "click",
-    e => {
-        e.stopPropagation();
-        togglePlay();
-    }
-);
+playBtn.addEventListener("click", e => {
+    e.stopPropagation();
+    togglePlay();
+});
 
-bigPlay.addEventListener(
-    "click",
-    togglePlay
-);
+bigPlay.addEventListener("click", togglePlay);
 
-/* =========================
-   NEXT PREVIOUS
-========================= */
-
-function playNext() {
-
-    if (!playlist.length) return;
-
-    currentIndex++;
-
-    if (currentIndex >= playlist.length) {
-        currentIndex = 0;
-    }
-
-    playSong(
-        playlist[currentIndex],
-        currentIndex
-    );
-}
-
-function playPrev() {
-
-    if (!playlist.length) return;
-
-    currentIndex--;
-
-    if (currentIndex < 0) {
-        currentIndex =
-            playlist.length - 1;
-    }
-
-    playSong(
-        playlist[currentIndex],
-        currentIndex
-    );
-}
-
-nextBtn.addEventListener(
-    "click",
-    playNext
-);
-
-prevBtn.addEventListener(
-    "click",
-    playPrev
-);
-
-audioPlayer.addEventListener(
-    "ended",
-    playNext
-);
-
-/* =========================
-   PROGRESS BAR
-========================= */
-
-audioPlayer.addEventListener(
-    "timeupdate",
-    () => {
-
-        if (!audioPlayer.duration)
-            return;
-
-        const percent =
-            (audioPlayer.currentTime /
-                audioPlayer.duration) * 100;
-
-        progress.style.width =
-            percent + "%";
-    }
-);
-
-/* =========================
-   SEARCH API
-========================= */
-
-async function searchSongs(query) {
-
-    const res = await fetch(
-        `${API_SEARCH}?query=${encodeURIComponent(query)}`
-    );
-
-    const data = await res.json();
-
-    if (!data.status)
-        return [];
-
-    return data.result || [];
-}
-/* =========================
-   LOAD SECTION
-========================= */
-
-async function loadSection(
-    container,
-    keyword
-) {
-
-    container.innerHTML =
-        `<div class="loading">
-            Memuat...
-        </div>`;
-
-    const songs =
-        await searchSongs(keyword);
-
-    playlist.push(...songs);
-
-    container.innerHTML =
-        songs
-            .slice(0, 12)
-            .map(createCard)
-            .join("");
-
-    container
-        .querySelectorAll(".song-card")
-        .forEach((card, index) => {
-
-            card.addEventListener(
-                "click",
-                () => {
-                    playSong(
-                        songs[index],
-                        index
-                    );
-                }
-            );
-
-        });
-}
-
-/* =========================
-   PLAYER (Update pada bagian ekstraksi data lagu)
-========================= */
-// Cari potongan kode ini di dalam script.js milikmu, lalu perbarui jalurnya:
 async function playSong(song, index = 0) {
     try {
         currentIndex = index;
+
         playerTitle.textContent = song.title;
-        playerArtist.textContent = song.artist || song.author?.name || "Unknown Artist";
+        playerArtist.textContent = song.artist || "Unknown Artist";
         
-        // Memastikan fallback membaca properti .thumbnail atau .image
-        playerThumb.src = song.thumbnail || song.image || "https://placehold.co/80x80";
+        // Membaca data thumbnail dari search maupun beranda dengan aman
+        const imgUrl = song.thumbnail || song.image || "https://placehold.co/150x150";
+        playerThumb.src = imgUrl;
+        fpThumb.src = imgUrl;
 
         fpTitle.textContent = playerTitle.textContent;
         fpArtist.textContent = playerArtist.textContent;
-        fpThumb.src = playerThumb.src;
 
         const res = await fetch(`${API_DOWNLOAD}?url=${encodeURIComponent(song.url)}`);
         const data = await res.json();
+
         if (!data.status) throw new Error("Download gagal");
 
-        audioPlayer.src = data.result.download;
+        // Ambil link download MP3
+        const streamUrl = data.result?.download?.url || data.result?.download;
+        if (!streamUrl) throw new Error("Link stream tidak ditemukan");
+
+        audioPlayer.src = streamUrl;
         await audioPlayer.play();
 
         isPlaying = true;
         playBtn.innerHTML = '<i class="fas fa-pause"></i>';
         bigPlay.innerHTML = '<i class="fas fa-pause"></i>';
 
+        downloadBtn.onclick = () => {
+            window.open(streamUrl, "_blank");
+        };
+
         saveRecent(song);
     } catch (err) {
         console.error(err);
-        alert("Gagal memutar lagu");
+        alert("Gagal memutar lagu: " + err.message);
     }
 }
 
 /* =========================
-   CARD UI (Sesuaikan properti img dan artist)
+   NEXT / PREVIOUS
+========================= */
+function playNext() {
+    if (!playlist.length) return;
+    currentIndex++;
+    if (currentIndex >= playlist.length) currentIndex = 0;
+    playSong(playlist[currentIndex], currentIndex);
+}
+
+function playPrev() {
+    if (!playlist.length) return;
+    currentIndex--;
+    if (currentIndex < 0) currentIndex = playlist.length - 1;
+    playSong(playlist[currentIndex], currentIndex);
+}
+
+nextBtn.addEventListener("click", playNext);
+prevBtn.addEventListener("click", playPrev);
+audioPlayer.addEventListener("ended", playNext);
+
+/* =========================
+   PROGRESS BAR
+========================= */
+audioPlayer.addEventListener("timeupdate", () => {
+    if (!audioPlayer.duration) return;
+    const percent = (audioPlayer.currentTime / audioPlayer.duration) * 100;
+    progress.style.width = percent + "%";
+});
+
+/* =========================
+   CORE FETCH SEARCH
+========================= */
+async function searchSongs(keyword) {
+    try {
+        // Tambahkan timestamp acak agar Vercel dipaksa melakukan refresh data terbaru (anti-cache)
+        const res = await fetch(`${API_SEARCH}?query=${encodeURIComponent(keyword)}&_t=${Date.now()}`);
+        const data = await res.json();
+        if (!data.status) return [];
+        return data.result || [];
+    } catch (e) {
+        console.error(e);
+        return [];
+    }
+}
+
+/* =========================
+   UI CARD CREATION (FIX THUMBNAIL)
 ========================= */
 function createCard(song) {
-    const image = song.image || song.thumbnail || "https://placehold.co/150x150";
-    const artist = song.artist || song.author?.name || "Unknown Artist";
-    
+    const imgUrl = song.thumbnail || song.image || "https://placehold.co/150x150";
     return `
     <div class="song-card" data-url="${song.url}">
-        <img src="${image}" alt="${song.title}">
+        <img src="${imgUrl}" alt="${song.title}" onerror="this.src='https://placehold.co/150x150'">
         <h4>${song.title}</h4>
-        <p>${artist}</p>
+        <p>${song.artist}</p>
     </div>
     `;
 }
 
 function createRow(song) {
-    const image = song.image || song.thumbnail || "https://placehold.co/60x60";
-    const artist = song.artist || song.author?.name || "Unknown Artist";
-
+    const imgUrl = song.thumbnail || song.image || "https://placehold.co/60x60";
     return `
     <div class="recent-item">
-        <img src="${image}">
+        <img src="${imgUrl}" onerror="this.src='https://placehold.co/60x60'">
         <div>
             <h4>${song.title}</h4>
-            <p>${artist}</p>
+            <p>${song.artist}</p>
         </div>
     </div>
     `;
 }
 
+/* =========================
+   LOAD BERANDA SECTIONS
+========================= */
+async function loadSection(container, keyword) {
+    container.innerHTML = `<div class="loading">Memuat lagu...</div>`;
+    const songs = await searchSongs(keyword);
+    
+    if(songs.length > 0) {
+        playlist.push(...songs);
+        container.innerHTML = songs.slice(0, 12).map(createCard).join("");
+
+        container.querySelectorAll(".song-card").forEach((card) => {
+            card.addEventListener("click", () => {
+                const songUrl = card.getAttribute("data-url");
+                const foundSong = playlist.find(s => s.url === songUrl);
+                if (foundSong) {
+                    playSong(foundSong, playlist.indexOf(foundSong));
+                }
+            });
+        });
+    } else {
+        container.innerHTML = `<div class="loading">Gagal memuat daftar lagu.</div>`;
+    }
+}
+
+/* =========================
+   INITIALIZATION
+========================= */
 async function init() {
     renderRecentSongs();
-    await loadSection(topHits, "top hits indonesia");
-    await loadSection(viralHits, "lagu viral tiktok");
-    await loadSection(newRelease, "musik terbaru 2026");
+    
+    // Memuat konten beranda secara paralel agar cepat
+    await Promise.all([
+        loadSection(topHits, "top hits indonesia"),
+        loadSection(viralHits, "lagu viral tiktok"),
+        loadSection(newRelease, "musik terbaru 2026")
+    ]);
 
-    // Auto-play jika ada data dari search.html
+    // Cek otomatis autoplay jika dialihkan dari search.html
     const autoplay = JSON.parse(localStorage.getItem("autoplay_song"));
     if (autoplay) {
         localStorage.removeItem("autoplay_song");
         playSong(autoplay, 0);
     }
 }
+
 init();
