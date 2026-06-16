@@ -1,42 +1,23 @@
 export default async function handler(req, res) {
   const query = req.query.query;
-
-  if (!query) {
-    return res.status(400).json({
-      status: false,
-      message: "Query pencarian kosong"
-    });
-  }
+  if (!query) return res.status(400).json({ status: false, message: "Query kosong" });
 
   try {
-    const response = await fetch(
-      `https://simple-api-lagi.vercel.app/api/search/ytsearch?query=${encodeURIComponent(query)}`
-    );
-    
-    if (!response.ok) throw new Error("Gagal mengambil data dari API pusat");
-    
+    const response = await fetch(`https://simple-api-lagi.vercel.app/api/search/ytsearch?query=${encodeURIComponent(query)}`);
     const data = await response.json();
-
-    // SESUAI JSON KAMU: Ambil langsung dari data.result.videos
-    const rawVideos = data.result?.videos || [];
-
-    // Bersihkan dan samakan format propertinya
-    const cleanSongs = rawVideos.map(video => ({
-      url: video.url,
-      title: video.title,
-      artist: video.author || "Unknown Artist",
-      image: video.thumbnail
+    
+    const videos = data.result?.videos || [];
+    
+    // Sesuaikan mapping data dengan struktur JSON asli milikmu
+    const cleanSongs = videos.map(v => ({
+        url: v.url,
+        title: v.title,
+        artist: v.author || "Unknown Artist",
+        thumbnail: v.thumbnail // Ini mengambil link gambar asli Youtube (.jpg)
     }));
 
-    res.status(200).json({
-      status: true,
-      result: cleanSongs
-    });
-
+    res.status(200).json({ status: true, result: cleanSongs });
   } catch (err) {
-    res.status(500).json({
-      status: false,
-      error: err.message
-    });
+    res.status(500).json({ status: false, error: err.message });
   }
 }
