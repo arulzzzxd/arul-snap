@@ -1,72 +1,82 @@
-// search.js
-// Arulzxd Music Player - Search Feature
+const searchInput = document.getElementById("searchInput");[cite: 10]
+const searchResults = document.getElementById("searchResults");[cite: 10]
+const searchBtn = document.getElementById("searchBtn");
 
-const searchInput = document.getElementById("searchInput");
-const searchResults = document.getElementById("searchResults");
-const audioPlayer = document.getElementById("audioPlayer");
+let debounceTimer = null;[cite: 10]
 
-let debounceTimer = null;
+// 1. Event saat mengetik (Debounce)
+searchInput.addEventListener("input", (e) => {[cite: 10]
+    const query = e.target.value.trim();[cite: 10]
+    clearTimeout(debounceTimer);[cite: 10]
 
-// Event input search
-searchInput.addEventListener("input", (e) => {
-    const query = e.target.value.trim();
-
-    clearTimeout(debounceTimer);
-
-    if (query.length === 0) {
-        searchResults.innerHTML = "";
-        return;
+    if (query.length === 0) {[cite: 10]
+        searchResults.innerHTML = "";[cite: 10]
+        return;[cite: 10]
     }
 
-    debounceTimer = setTimeout(() => {
-        searchSongs(query);
-    }, 400);
+    debounceTimer = setTimeout(() => {[cite: 10]
+        searchSongs(query);[cite: 10]
+    }, 500);
 });
 
-// Fetch search API
+// 2. Event saat tombol "Cari" Berwarna Hijau Diklik
+searchBtn.addEventListener("click", () => {
+    const query = searchInput.value.trim();
+    if (query.length > 0) {
+        searchSongs(query);
+    }
+});
+
+// 3. Event saat menekan tombol "Enter" di Keyboard HP / Laptop
+searchInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+        const query = searchInput.value.trim();
+        if (query.length > 0) {
+            searchSongs(query);
+        }
+    }
+});
+
+// Fungsi Fetch ke Serverless Backend Vercel milikmu
 async function searchSongs(query) {
     try {
-        searchResults.innerHTML = `<p class="loading">Searching...</p>`;
+        searchResults.innerHTML = `<p class="loading">Searching...</p>`;[cite: 10]
 
-        // Ganti URL ini sesuai backend/API kamu
         const res = await fetch(`/api/search?query=${encodeURIComponent(query)}`);
-        
-        if (!res.ok) throw new Error("Network error");
+        if (!res.ok) throw new Error("Network error");[cite: 5]
 
         const data = await res.json();
-
-        renderResults(data.results || []);
+        renderResults(data.result || []);
     } catch (err) {
-        console.error(err);
-        searchResults.innerHTML = `<p class="error">Gagal mencari lagu.</p>`;
+        console.error(err);[cite: 10]
+        searchResults.innerHTML = `<p class="error">Gagal mencari lagu.</p>`;[cite: 5]
     }
 }
 
-// Render hasil search
+// Render hasil search ke komponen UI
 function renderResults(songs) {
-    if (!songs.length) {
-        searchResults.innerHTML = `<p class="empty">Lagu tidak ditemukan.</p>`;
-        return;
+    if (!songs.length) {[cite: 10]
+        searchResults.innerHTML = `<p class="empty">Lagu tidak ditemukan.</p>`;[cite: 5]
+        return;[cite: 10]
     }
 
     searchResults.innerHTML = songs.map(song => `
-        <div class="song-item" onclick="playSong('${song.url}', '${song.title}', '${song.artist}', '${song.image}')">
+        <div class="song-item" onclick="playSong('${song.url}', '${song.title.replace(/'/g, "\\'")}', '${song.artist.replace(/'/g, "\\'")}', '${song.image}')">
             <img src="${song.image}" alt="${song.title}">
             <div class="song-info">
                 <h4>${song.title}</h4>
                 <p>${song.artist}</p>
             </div>
-            <button class="play-btn">▶</button>
+            <button class="play-btn"><i class="fas fa-play"></i></button>
         </div>
-    `).join("");
+    `).join("");[cite: 5]
 }
 
-// Play lagu
+// Melempar data ke halaman utama (index.html) menggunakan localStorage
 function playSong(url, title, artist, image) {
     const songData = { url, title, artist, image };
     localStorage.setItem("autoplay_song", JSON.stringify(songData));
-    window.location.href = "index.html"; // Balik ke home untuk mutar lagu
+    window.location.href = "index.html";
 }
 
-// Optional: expose global
-window.playSong = playSong;
+window.playSong = playSong;[cite: 10]
