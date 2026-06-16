@@ -103,7 +103,6 @@ async function playSong(song, index = 0) {
         playerTitle.textContent = song.title;
         playerArtist.textContent = song.artist || "Unknown Artist";
         
-        // Membaca data thumbnail dari search maupun beranda dengan aman
         const imgUrl = song.thumbnail || song.image || "https://placehold.co/150x150";
         playerThumb.src = imgUrl;
         fpThumb.src = imgUrl;
@@ -116,7 +115,6 @@ async function playSong(song, index = 0) {
 
         if (!data.status) throw new Error("Download gagal");
 
-        // Ambil link download MP3
         const streamUrl = data.result?.download?.url || data.result?.download;
         if (!streamUrl) throw new Error("Link stream tidak ditemukan");
 
@@ -169,11 +167,11 @@ audioPlayer.addEventListener("timeupdate", () => {
 });
 
 /* =========================
-   CORE FETCH SEARCH
+   CORE FETCH SEARCH (ANTI-CACHE)
 ========================= */
 async function searchSongs(keyword) {
     try {
-        // Tambahkan timestamp acak agar Vercel dipaksa melakukan refresh data terbaru (anti-cache)
+        // MENAMBAHKAN TIMESTAMP ACAK (&_t=...) AGAR DATA DI BERANDA SELALU BARU DAN BERUBAH
         const res = await fetch(`${API_SEARCH}?query=${encodeURIComponent(keyword)}&_t=${Date.now()}`);
         const data = await res.json();
         if (!data.status) return [];
@@ -185,7 +183,7 @@ async function searchSongs(keyword) {
 }
 
 /* =========================
-   UI CARD CREATION (FIX THUMBNAIL)
+   UI CARD CREATION
 ========================= */
 function createCard(song) {
     const imgUrl = song.thumbnail || song.image || "https://placehold.co/150x150";
@@ -215,7 +213,7 @@ function createRow(song) {
    LOAD BERANDA SECTIONS
 ========================= */
 async function loadSection(container, keyword) {
-    container.innerHTML = `<div class="loading">Memuat lagu...</div>`;
+    container.innerHTML = `<div class="loading">Memuat musik...</div>`;
     const songs = await searchSongs(keyword);
     
     if(songs.length > 0) {
