@@ -5,7 +5,7 @@ export default async function handler(req, res) {
 
   try {
     // GANTI dengan URL API alternatif pilihanmu yang sedang aktif
-    const response = await fetch(`https://api.pilihanmu.com/ytsearch?query=${encodeURIComponent(query)}`);
+    const response = await fetch(`https://simple-api-lagi.vercel.app/api/search/ytsearch?query=${encodeURIComponent(query)}`);
     const data = await response.json();
     
     // Pastikan hasil return dipetakan ulang (mapping) ke format objek yang dikenali script.js kamu:
