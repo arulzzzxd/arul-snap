@@ -1,3 +1,4 @@
+
 const API_SEARCH = "/api/search";
 const API_DOWNLOAD = "/api/download";
 
@@ -152,73 +153,6 @@ bigPlay.addEventListener(
     togglePlay
 );
 
-async function playSong(song, index = 0) {
-
-    try {
-
-        currentIndex = index;
-
-        playerTitle.textContent =
-            song.title;
-
-        playerArtist.textContent =
-            song.author?.name ||
-            song.channel ||
-            "Unknown Artist";
-
-        playerThumb.src =
-            song.thumbnail;
-
-        fpTitle.textContent =
-            playerTitle.textContent;
-
-        fpArtist.textContent =
-            playerArtist.textContent;
-
-        fpThumb.src =
-            playerThumb.src;
-
-        const res = await fetch(
-            `${API_DOWNLOAD}?url=${encodeURIComponent(song.url)}`
-        );
-
-        const data = await res.json();
-
-        if (!data.status)
-            throw new Error("Download gagal");
-
-        audioPlayer.src =
-            data.result.download;
-
-        await audioPlayer.play();
-
-        isPlaying = true;
-
-        playBtn.innerHTML =
-            '<i class="fas fa-pause"></i>';
-
-        bigPlay.innerHTML =
-            '<i class="fas fa-pause"></i>';
-
-        downloadBtn.onclick = () => {
-            window.open(
-                data.result.download,
-                "_blank"
-            );
-        };
-
-        saveRecent(song);
-
-    } catch (err) {
-
-        console.error(err);
-
-        alert(
-            "Gagal memutar lagu"
-        );
-    }
-}
-
 /* =========================
    NEXT PREVIOUS
 ========================= */
@@ -308,39 +242,6 @@ async function searchSongs(query) {
 
     return data.result || [];
 }
-
-/* =========================
-   CARD UI
-========================= */
-
-function createCard(song) {
-
-    return `
-    <div class="song-card" data-url="${song.url}">
-        <img src="${song.thumbnail}" alt="">
-        <h4>${song.title}</h4>
-        <p>
-            ${song.author?.name || "Unknown"}
-        </p>
-    </div>
-    `;
-}
-
-function createRow(song) {
-
-    return `
-    <div class="recent-item">
-        <img src="${song.thumbnail}">
-        <div>
-            <h4>${song.title}</h4>
-            <p>
-                ${song.author?.name || "Unknown"}
-            </p>
-        </div>
-    </div>
-    `;
-}
-
 /* =========================
    LOAD SECTION
 ========================= */
@@ -384,27 +285,91 @@ async function loadSection(
 }
 
 /* =========================
-   INIT
+   PLAYER (Update pada bagian ekstraksi data lagu)
 ========================= */
+async function playSong(song, index = 0) {
+    try {
+        currentIndex = index;
 
-async function init() {
+        playerTitle.textContent = song.title;
+        
+        // Menyesuaikan dengan properti .artist atau .author
+        playerArtist.textContent = song.artist || song.author?.name || "Unknown Artist";
+        
+        // Menyesuaikan dengan properti .image atau .thumbnail
+        playerThumb.src = song.image || song.thumbnail;
 
-    renderRecentSongs();
+        fpTitle.textContent = playerTitle.textContent;
+        fpArtist.textContent = playerArtist.textContent;
+        fpThumb.src = playerThumb.src;
 
-    await loadSection(
-        topHits,
-        "top hits indonesia"
-    );
+        const res = await fetch(
+            `${API_DOWNLOAD}?url=${encodeURIComponent(song.url)}`
+        );
+        const data = await res.json();
 
-    await loadSection(
-        viralHits,
-        "lagu viral tiktok"
-    );
+        if (!data.status) throw new Error("Download gagal");
 
-    await loadSection(
-        newRelease,
-        "musik terbaru 2026"
-    );
+        audioPlayer.src = data.result.download;
+        await audioPlayer.play();
+
+        isPlaying = true;
+        playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+        bigPlay.innerHTML = '<i class="fas fa-pause"></i>';
+
+        downloadBtn.onclick = () => {
+            window.open(data.result.download, "_blank");
+        };
+
+        saveRecent(song);
+    } catch (err) {
+        console.error(err);
+        alert("Gagal memutar lagu");
+    }
 }
 
+/* =========================
+   CARD UI (Sesuaikan properti img dan artist)
+========================= */
+function createCard(song) {
+    const image = song.image || song.thumbnail || "https://placehold.co/150x150";
+    const artist = song.artist || song.author?.name || "Unknown Artist";
+    
+    return `
+    <div class="song-card" data-url="${song.url}">
+        <img src="${image}" alt="${song.title}">
+        <h4>${song.title}</h4>
+        <p>${artist}</p>
+    </div>
+    `;
+}
+
+function createRow(song) {
+    const image = song.image || song.thumbnail || "https://placehold.co/60x60";
+    const artist = song.artist || song.author?.name || "Unknown Artist";
+
+    return `
+    <div class="recent-item">
+        <img src="${image}">
+        <div>
+            <h4>${song.title}</h4>
+            <p>${artist}</p>
+        </div>
+    </div>
+    `;
+}
+
+async function init() {
+    renderRecentSongs();
+    await loadSection(topHits, "top hits indonesia");
+    await loadSection(viralHits, "lagu viral tiktok");
+    await loadSection(newRelease, "musik terbaru 2026");
+
+    // Auto-play jika ada data dari search.html
+    const autoplay = JSON.parse(localStorage.getItem("autoplay_song"));
+    if (autoplay) {
+        localStorage.removeItem("autoplay_song");
+        playSong(autoplay, 0);
+    }
+}
 init();

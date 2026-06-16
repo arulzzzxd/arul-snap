@@ -29,7 +29,7 @@ async function searchSongs(query) {
         searchResults.innerHTML = `<p class="loading">Searching...</p>`;
 
         // Ganti URL ini sesuai backend/API kamu
-        const res = await fetch(`https://simple-api-lagi.vercel.app/api/search/ytsearch?query=${encodeURIComponent(query)}`);
+        const res = await fetch(`/api/search?query=${encodeURIComponent(query)}`);
         
         if (!res.ok) throw new Error("Network error");
 
@@ -63,15 +63,9 @@ function renderResults(songs) {
 
 // Play lagu
 function playSong(url, title, artist, image) {
-    audioPlayer.src = url;
-    audioPlayer.play();
-
-    // update UI player (sesuaikan dengan UI kamu)
-    document.getElementById("nowTitle").textContent = title;
-    document.getElementById("nowArtist").textContent = artist;
-    document.getElementById("nowImage").src = image;
-
-    document.querySelector(".player").classList.add("active");
+    const songData = { url, title, artist, image };
+    localStorage.setItem("autoplay_song", JSON.stringify(songData));
+    window.location.href = "index.html"; // Balik ke home untuk mutar lagu
 }
 
 // Optional: expose global
