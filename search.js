@@ -1,22 +1,22 @@
-const searchInput = document.getElementById("searchInput");[cite: 5]
-const searchResults = document.getElementById("searchResults");[cite: 5]
+const searchInput = document.getElementById("searchInput");
+const searchResults = document.getElementById("searchResults");
 const searchBtn = document.getElementById("searchBtn");
 
-let debounceTimer = null;[cite: 5]
+let debounceTimer = null;
 
 // 1. Event saat mengetik otomatis (Debounce)
-searchInput.addEventListener("input", (e) => {[cite: 5]
-    const query = e.target.value.trim();[cite: 5]
-    clearTimeout(debounceTimer);[cite: 5]
+searchInput.addEventListener("input", (e) => {
+    const query = e.target.value.trim();
+    clearTimeout(debounceTimer);
 
-    if (query.length === 0) {[cite: 5]
-        searchResults.innerHTML = "";[cite: 5]
-        return;[cite: 5]
+    if (query.length === 0) {
+        searchResults.innerHTML = "";
+        return;
     }
 
-    debounceTimer = setTimeout(() => {[cite: 5]
-        searchSongs(query);[cite: 5]
-    }, 500);
+    debounceTimer = setTimeout(() => {
+        searchSongs(query);
+    }, 600);
 });
 
 // 2. Event saat tombol hijau "Cari" diklik
@@ -39,54 +39,67 @@ searchInput.addEventListener("keydown", (e) => {
     }
 });
 
-// Fungsi Fetch data ke serverless backend lokal Vercel
+// Fungsi Tembak API Langsung dari Client
 async function searchSongs(query) {
     try {
-        searchResults.innerHTML = `<p class="loading">Searching...</p>`;[cite: 5]
+        // Tampilkan status pencarian ke layar terlebih dahulu
+        searchResults.innerHTML = `<p class="loading"><i class="fas fa-spinner fa-spin"></i> Sedang mencari lagu "${query}"...</p>`;
 
-        const res = await fetch(`/api/search?query=${encodeURIComponent(query)}`);
-        if (!res.ok) throw new Error("Network error");[cite: 5]
-
-        const data = await res.json();
+        // Langsung tembak ke API tujuan utama untuk menghindari bottleneck internal Vercel Serverless
+        const response = await fetch(`https://simple-api-lagi.vercel.app/api/search/ytsearch?query=${encodeURIComponent(query)}`);
         
-        // Pastikan yang dikirim ke render adalah array bersih
-        renderResults(data.result || []);
+        if (!response.ok) {
+            throw new Error(`Server API merespon dengan status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log("Data API Berhasil Diterima:", data);
+
+        // Validasi struktur JSON sesuai skema murninya
+        if (data && data.status && data.result && data.result.videos) {
+            renderResults(data.result.videos);
+        } else {
+            searchResults.innerHTML = `<p class="empty">Format data dari server tidak sesuai atau kosong.</p>`;
+        }
+
     } catch (err) {
-        console.error(err);[cite: 5]
-        searchResults.innerHTML = `<p class="error">Gagal mencari lagu.</p>`;[cite: 5]
+        console.error("Detail Error Pencarian:", err);
+        // Cetak pesan error asli ke UI agar kamu bisa melihat kendalanya langsung di HP
+        searchResults.innerHTML = `<p class="error"><i class="fas fa-exclamation-triangle"></i> Terjadi Kesalahan: ${err.message}</p>`;
     }
 }
 
-// Render hasil data ke struktur HTML
-function renderResults(songs) {
-    if (!songs || !songs.length) {[cite: 5]
-        searchResults.innerHTML = `<p class="empty">Lagu tidak ditemukan.</p>`;[cite: 5]
-        return;[cite: 5]
+// Render hasil data video ke struktur HTML komponen
+function renderResults(videos) {
+    if (!videos || videos.length === 0) {
+        searchResults.innerHTML = `<p class="empty">Lagu tidak ditemukan.</p>`;
+        return;
     }
 
-    searchResults.innerHTML = songs.map(song => {
-        // Amankan string judul & nama artis dari karakter petik (') yang bisa bikin crash HTML
-        const safeTitle = song.title.replace(/'/g, "\\'");
-        const safeArtist = song.artist.replace(/'/g, "\\'");
+    searchResults.innerHTML = videos.map(video => {
+        // Amankan string judul & nama channel dari karakter petik (') agar tidak merusak HTML onclick
+        const safeTitle = video.title.replace(/'/g, "\\'");
+        const safeArtist = (video.author || "Unknown Artist").replace(/'/g, "\\'");
+        const cleanThumb = video.thumbnail || "https://placehold.co/80x80";
 
         return `
-            <div class="song-item" onclick="playSong('${song.url}', '${safeTitle}', '${safeArtist}', '${song.image}')">
-                <img src="${song.image}" alt="${song.title}">
+            <div class="song-item" onclick="playSong('${video.url}', '${safeTitle}', '${safeArtist}', '${cleanThumb}')">
+                <img src="${cleanThumb}" alt="${video.title}">
                 <div class="song-info">
-                    <h4>${song.title}</h4>
-                    <p>${song.artist}</p>
+                    <h4>${video.title}</h4>
+                    <p>${video.author || 'Unknown Artist'}</p>
                 </div>
-                <button class="play-btn">▶</button>
+                <button class="play-btn"><i class="fas fa-play"></i></button>
             </div>
         `;
-    }).join("");[cite: 5]
+    }).join("");
 }
 
-// Melempar data lagu ke index.html lewat localStorage
+// Lempar data lagu terpilih ke index.html lewat localStorage
 function playSong(url, title, artist, image) {
     const songData = { url, title, artist, image };
     localStorage.setItem("autoplay_song", JSON.stringify(songData));
     window.location.href = "index.html";
 }
 
-window.playSong = playSong;[cite: 5]
+window.playSong = playSong;
