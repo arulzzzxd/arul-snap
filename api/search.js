@@ -18,17 +18,20 @@ export default async function handler(req, res) {
     const data = await response.json();
     const rawVideos = data.result?.videos || [];
 
-    // Kita petakan agar memiliki properti thumbnail dan image sekaligus untuk menghindari error pecah
+    // Mapping data agar aman dibaca oleh properti thumbnail maupun image
     const cleanSongs = rawVideos.map(video => ({
       url: video.url,
       title: video.title,
       artist: video.author || "Unknown Artist",
       thumbnail: video.thumbnail,
-      image: video.thumbnail // Fallback ganda
+      image: video.thumbnail
     }));
 
-    // Sediakan header agar data selalu fresh dan tidak di-cache oleh Vercel
+    // === KUNCI UTAMA ANTI-CACHE (AGAR LAGU SELALU REFRESH/BARU) ===
     res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.setHeader('Expires', '0');
+    res.setHeader('Surrogate-Control', 'no-store');
+
     res.status(200).json({
       status: true,
       result: cleanSongs
