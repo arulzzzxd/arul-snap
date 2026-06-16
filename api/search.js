@@ -17,10 +17,10 @@ export default async function handler(req, res) {
     
     const data = await response.json();
 
-    // Sesuai JSON kamu: array video ada di data.result.videos
+    // SESUAI JSON KAMU: Ambil langsung dari data.result.videos
     const rawVideos = data.result?.videos || [];
 
-    // Kita standarkan formatnya di sini agar seragam
+    // Bersihkan dan samakan format propertinya
     const cleanSongs = rawVideos.map(video => ({
       url: video.url,
       title: video.title,
