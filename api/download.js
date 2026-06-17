@@ -1,43 +1,17 @@
 export default async function handler(req, res) {
-  const url = req.query.url;
+    const { url } = req.query;
 
-  if (!url) {
-    return res.status(400).json({
-      status: false,
-      message: "URL kosong"
-    });
-  }
-
-  try {
-    const response = await fetch(
-      `https://api-arulzxd-vvipclouds.vercel.app/api/download/ytmp3?apikey=arulzxd-keys&url=${encodeURIComponent(url)}`
-    );
-
-    if (!response.ok) throw new Error("Gagal mengunduh audio dari API pusat");
-
-    const data = await response.json();
-
-    // Sesuai JSON kamu: link audio di data.result.download.url
-    const downloadLink = data.result?.download?.url;
-
-    if (!downloadLink) {
-      return res.status(400).json({
-        status: false,
-        message: "Link download tidak ditemukan dari API pusat"
-      });
+    if (!url) {
+        return res.status(400).json({ status: false, message: "URL tidak boleh kosong" });
     }
 
-    res.status(200).json({
-      status: true,
-      result: {
-        download: downloadLink
-      }
-    });
+    try {
+        const targetUrl = `https://api-arulzxd-vvipclouds.vercel.app/api/download/ytmp3?apikey=arulzxd-keys&url=${encodeURIComponent(url)}`;
+        const response = await fetch(targetUrl);
+        const data = await response.json();
 
-  } catch (err) {
-    res.status(500).json({
-      status: false,
-      error: err.message
-    });
-  }
+        res.status(200).json(data);
+    } catch (error) {
+        res.status(500).json({ status: false, message: error.message });
+    }
 }
