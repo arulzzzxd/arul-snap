@@ -1,66 +1,65 @@
-const API_SEARCH = "/api/search";[cite: 3]
-const API_DOWNLOAD = "/api/download";[cite: 3]
+const API_SEARCH = "/api/search";
+const API_DOWNLOAD = "/api/download";
 
-const topHits = document.getElementById("topHits");[cite: 3]
-const viralHits = document.getElementById("viralHits");[cite: 3]
-const newRelease = document.getElementById("newRelease");[cite: 3]
-const recentSongs = document.getElementById("recentSongs");[cite: 3]
+const topHits = document.getElementById("topHits");
+const viralHits = document.getElementById("viralHits");
+const newRelease = document.getElementById("newRelease");
+const recentSongs = document.getElementById("recentSongs");
 
-const audioPlayer = document.getElementById("audioPlayer");[cite: 3]
+const audioPlayer = document.getElementById("audioPlayer");
 
-const playBtn = document.getElementById("playBtn");[cite: 3]
-const playerTitle = document.getElementById("playerTitle");[cite: 3]
-const playerArtist = document.getElementById("playerArtist");[cite: 3]
-const playerThumb = document.getElementById("playerThumb");[cite: 3]
-const downloadBtn = document.getElementById("downloadBtn");[cite: 3]
+const playBtn = document.getElementById("playBtn");
+const playerTitle = document.getElementById("playerTitle");
+const playerArtist = document.getElementById("playerArtist");
+const playerThumb = document.getElementById("playerThumb");
+const downloadBtn = document.getElementById("downloadBtn");
 
-const fullPlayer = document.getElementById("fullPlayer");[cite: 3]
-const fpTitle = document.getElementById("fpTitle");[cite: 3]
-const fpArtist = document.getElementById("fpArtist");[cite: 3]
-const fpThumb = document.getElementById("fpThumb");[cite: 3]
+const fullPlayer = document.getElementById("fullPlayer");
+const fpTitle = document.getElementById("fpTitle");
+const fpArtist = document.getElementById("fpArtist");
+const fpThumb = document.getElementById("fpThumb");
 
-const progress = document.getElementById("progress");[cite: 3]
-const currentTimeEl = document.getElementById("currentTime");[cite: 3]
-const durationEl = document.getElementById("duration");[cite: 3]
-const bigPlay = document.getElementById("bigPlay");[cite: 3]
-const nextBtn = document.getElementById("nextBtn");[cite: 3]
-const prevBtn = document.getElementById("prevBtn");[cite: 3]
+const progress = document.getElementById("progress");
+const currentTimeEl = document.getElementById("currentTime");
+const durationEl = document.getElementById("duration");
+const bigPlay = document.getElementById("bigPlay");
+const nextBtn = document.getElementById("nextBtn");
+const prevBtn = document.getElementById("prevBtn");
 
-let playlist = [];[cite: 3]
-let currentIndex = 0;[cite: 3]
-let isPlaying = false;[cite: 3]
+let playlist = [];
+let currentIndex = 0;
+let isPlaying = false;
 
 /* =========================
    RECENT SONGS (RIWAYAT PUTAR)
 ========================= */
 function saveRecent(song) {
-    let recent = JSON.parse(localStorage.getItem("recentSongs")) || [];[cite: 3]
-    recent = recent.filter(item => item.url !== song.url);[cite: 3]
-    recent.unshift(song);[cite: 3]
-    recent = recent.slice(0, 20);[cite: 3]
-    localStorage.setItem("recentSongs", JSON.stringify(recent));[cite: 3]
-    renderRecentSongs();[cite: 3]
+    let recent = JSON.parse(localStorage.getItem("recentSongs")) || [];
+    recent = recent.filter(item => item.url !== song.url);
+    recent.unshift(song);
+    recent = recent.slice(0, 20);
+    localStorage.setItem("recentSongs", JSON.stringify(recent));
+    renderRecentSongs();
 }
 
 function renderRecentSongs() {
-    const recent = JSON.parse(localStorage.getItem("recentSongs")) || [];[cite: 3]
+    const recent = JSON.parse(localStorage.getItem("recentSongs")) || [];
 
-    if (!recent.length) {[cite: 3]
-        recentSongs.innerHTML = `<div class="loading">Belum ada lagu diputar</div>`;[cite: 3]
-        return;[cite: 3]
-    }[cite: 3]
+    if (!recent.length) {
+        recentSongs.innerHTML = `<div class="loading">Belum ada lagu diputar</div>`;
+        return;
+    }
 
-    recentSongs.innerHTML = recent.map(createRow).join("");[cite: 3]
+    recentSongs.innerHTML = recent.map(createRow).join("");
 
     document.querySelectorAll(".recent-item").forEach((item, index) => {
         item.addEventListener("click", () => {
-            // FIX: Cek apakah lagu sudah ada di antrean playlist aktif agar tombol next/prev tidak error
             let existingIndex = playlist.findIndex(s => s.url === recent[index].url);
             if (existingIndex === -1) {
                 playlist.unshift(recent[index]);
                 existingIndex = 0;
             }
-            playSong(recent[index], existingIndex);
+            playSong(playlist[existingIndex], existingIndex);
         });
     });
 }
@@ -69,66 +68,68 @@ function renderRecentSongs() {
    PLAYER ACTIONS
 ========================= */
 function openPlayer() {
-    fullPlayer.classList.add("show");[cite: 3]
-    fpTitle.textContent = playerTitle.textContent;[cite: 3]
-    fpArtist.textContent = playerArtist.textContent;[cite: 3]
-    fpThumb.src = playerThumb.src;[cite: 3]
+    fullPlayer.classList.add("show");
+    fpTitle.textContent = playerTitle.textContent;
+    fpArtist.textContent = playerArtist.textContent;
+    fpThumb.src = playerThumb.src;
 }
 
 function closePlayer() {
-    fullPlayer.classList.remove("show");[cite: 3]
+    fullPlayer.classList.remove("show");
 }
 
-document.querySelector(".player").addEventListener("click", openPlayer);[cite: 3]
+document.querySelector(".player").addEventListener("click", openPlayer);
 
 function togglePlay() {
-    if (!audioPlayer.src) return;[cite: 3]
+    if (!audioPlayer.src) return;
 
     if (isPlaying) {
-        audioPlayer.pause();[cite: 3]
-        isPlaying = false;[cite: 3]
-        playBtn.innerHTML = '<i class="fas fa-play"></i>';[cite: 3]
-        bigPlay.innerHTML = '<i class="fas fa-play"></i>';[cite: 3]
+        audioPlayer.pause();
+        isPlaying = false;
+        playBtn.innerHTML = '<i class="fas fa-play"></i>';
+        bigPlay.innerHTML = '<i class="fas fa-play"></i>';
     } else {
-        audioPlayer.play();[cite: 3]
-        isPlaying = true;[cite: 3]
-        playBtn.innerHTML = '<i class="fas fa-pause"></i>';[cite: 3]
-        bigPlay.innerHTML = '<i class="fas fa-pause"></i>';[cite: 3]
+        audioPlayer.play();
+        isPlaying = true;
+        playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+        bigPlay.innerHTML = '<i class="fas fa-pause"></i>';
     }
 }
 
 playBtn.addEventListener("click", e => {
-    e.stopPropagation();[cite: 3]
-    togglePlay();[cite: 3]
+    e.stopPropagation();
+    togglePlay();
 });
 
-bigPlay.addEventListener("click", togglePlay);[cite: 3]
+bigPlay.addEventListener("click", togglePlay);
 
 async function playSong(song, index = 0) {
     try {
-        currentIndex = index;[cite: 3]
+        if (!song) return;
+        currentIndex = index;
 
-        playerTitle.textContent = song.title || "Memuat...";[cite: 3]
-        playerArtist.textContent = song.artist || song.author || "Unknown Artist";[cite: 3]
+        // Set UI awal dari manifes lagu lokal sebelum server merespons
+        playerTitle.textContent = song.title || "Memuat...";
+        playerArtist.textContent = song.artist || song.author || "Unknown Artist";
         
-        const imgUrl = song.thumbnail || song.image || "https://placehold.co/150x150";[cite: 3]
-        playerThumb.src = imgUrl;[cite: 3]
-        fpThumb.src = imgUrl;[cite: 3]
+        const imgUrl = song.thumbnail || song.image || "https://placehold.co/150x150";
+        playerThumb.src = imgUrl;
+        fpThumb.src = imgUrl;
 
-        fpTitle.textContent = playerTitle.textContent;[cite: 3]
-        fpArtist.textContent = playerArtist.textContent;[cite: 3]
+        fpTitle.textContent = playerTitle.textContent;
+        fpArtist.textContent = playerArtist.textContent;
 
-        // Mengambil data streaming dari API download lokal
-        const res = await fetch(`${API_DOWNLOAD}?url=${encodeURIComponent(song.url)}`);[cite: 3]
-        const data = await res.json();[cite: 3]
+        // Memanggil API download internal
+        const res = await fetch(`${API_DOWNLOAD}?url=${encodeURIComponent(song.url)}`);
+        const data = await res.json();
 
-        if (!data.status) throw new Error("Download gagal");[cite: 3]
+        if (!data.status) throw new Error("Download gagal");
 
-        // FIX: Menyesuaikan pembacaan URL sesuai struktur JSON result.download.url kamu
+        // FIX: Parsing link streaming berdasarkan target 'result.download.url' dari objek respon baru Anda
         const streamUrl = data.result?.download?.url;
-        if (!streamUrl) throw new Error("Link stream tidak ditemukan");[cite: 3]
+        if (!streamUrl) throw new Error("Link stream tidak ditemukan");
 
-        // FIX: Sinkronisasi ulang metadata resmi dari server jika tersedia di dalam properti video
+        // FIX: Perbarui metadata secara realtime menggunakan kembalian valid dari data server 'result.video'
         if (data.result?.video) {
             const videoData = data.result.video;
             playerTitle.textContent = videoData.title;
@@ -138,32 +139,33 @@ async function playSong(song, index = 0) {
             fpTitle.textContent = videoData.title;
             fpArtist.textContent = videoData.author || "Unknown Artist";
             
+            // Perbarui data referensi agar riwayat tersimpan rapi
             song.title = videoData.title;
             song.artist = videoData.author;
             song.thumbnail = videoData.thumbnail;
         }
 
-        audioPlayer.src = streamUrl;[cite: 3]
-        await audioPlayer.play();[cite: 3]
+        audioPlayer.src = streamUrl;
+        await audioPlayer.play();
 
-        isPlaying = true;[cite: 3]
-        playBtn.innerHTML = '<i class="fas fa-pause"></i>';[cite: 3]
-        bigPlay.innerHTML = '<i class="fas fa-pause"></i>';[cite: 3]
+        isPlaying = true;
+        playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+        bigPlay.innerHTML = '<i class="fas fa-pause"></i>';
 
-        // FIX: Unduh lagu menggunakan nama berkas rapi dari server (result.download.filename)
+        // FIX: Inject callback download agar nama file rapi mengikuti properti 'result.download.filename'
         downloadBtn.onclick = () => {
-            const a = document.createElement("a");[cite: 3]
-            a.href = streamUrl;[cite: 3]
+            const a = document.createElement("a");
+            a.href = streamUrl;
             a.download = data.result?.download?.filename || `${playerTitle.textContent}.mp3`;
-            document.body.appendChild(a);[cite: 3]
-            a.click();[cite: 3]
-            document.body.removeChild(a);[cite: 3]
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
         };
 
-        saveRecent(song);[cite: 3]
+        saveRecent(song);
     } catch (err) {
-        console.error(err);[cite: 3]
-        alert("Gagal memutar lagu: " + err.message);[cite: 3]
+        console.error(err);
+        alert("Gagal memutar lagu: " + err.message);
     }
 }
 
@@ -171,39 +173,39 @@ async function playSong(song, index = 0) {
    NEXT / PREVIOUS
 ========================= */
 function playNext() {
-    if (!playlist.length) return;[cite: 3]
-    currentIndex++;[cite: 3]
-    if (currentIndex >= playlist.length) currentIndex = 0;[cite: 3]
-    playSong(playlist[currentIndex], currentIndex);[cite: 3]
+    if (!playlist.length) return;
+    currentIndex++;
+    if (currentIndex >= playlist.length) currentIndex = 0;
+    playSong(playlist[currentIndex], currentIndex);
 }
 
 function playPrev() {
-    if (!playlist.length) return;[cite: 3]
-    currentIndex--;[cite: 3]
-    if (currentIndex < 0) currentIndex = playlist.length - 1;[cite: 3]
-    playSong(playlist[currentIndex], currentIndex);[cite: 3]
+    if (!playlist.length) return;
+    currentIndex--;
+    if (currentIndex < 0) currentIndex = playlist.length - 1;
+    playSong(playlist[currentIndex], currentIndex);
 }
 
-nextBtn.addEventListener("click", playNext);[cite: 3]
-prevBtn.addEventListener("click", playPrev);[cite: 3]
-audioPlayer.addEventListener("ended", playNext);[cite: 3]
+nextBtn.addEventListener("click", playNext);
+prevBtn.addEventListener("click", playPrev);
+audioPlayer.addEventListener("ended", playNext);
 
 function formatTime(sec) {
-    if (!sec || isNaN(sec)) return "0:00";[cite: 3]
-    const m = Math.floor(sec / 60);[cite: 3]
-    const s = Math.floor(sec % 60);[cite: 3]
-    return `${m}:${String(s).padStart(2,"0")}`;[cite: 3]
+    if (!sec || isNaN(sec)) return "0:00";
+    const m = Math.floor(sec / 60);
+    const s = Math.floor(sec % 60);
+    return `${m}:${String(s).padStart(2, "0")}`;
 }
 
 /* =========================
    PROGRESS BAR
 ========================= */
 audioPlayer.addEventListener("timeupdate", () => {
-    if (!audioPlayer.duration) return;[cite: 3]
-    const percent = (audioPlayer.currentTime / audioPlayer.duration) * 100;[cite: 3]
-    progress.style.width = percent + "%";[cite: 3]
-    currentTimeEl.textContent = formatTime(audioPlayer.currentTime);[cite: 3]
-    durationEl.textContent = formatTime(audioPlayer.duration);[cite: 3]
+    if (!audioPlayer.duration) return;
+    const percent = (audioPlayer.currentTime / audioPlayer.duration) * 100;
+    progress.style.width = percent + "%";
+    currentTimeEl.textContent = formatTime(audioPlayer.currentTime);
+    durationEl.textContent = formatTime(audioPlayer.duration);
 });
 
 /* =========================
@@ -211,15 +213,15 @@ audioPlayer.addEventListener("timeupdate", () => {
 ========================= */
 async function searchSongs(keyword) {
     try {
-        const res = await fetch(`${API_SEARCH}?query=${encodeURIComponent(keyword)}&_t=${Date.now()}`);[cite: 3]
-        const data = await res.json();[cite: 3]
-        if (!data.status) return [];[cite: 3]
+        const res = await fetch(`${API_SEARCH}?query=${encodeURIComponent(keyword)}&_t=${Date.now()}`);
+        const data = await res.json();
+        if (!data.status) return [];
         
-        // FIX: Mengembalikan target array yang benar, yaitu data.result.videos
-        return data.result?.videos || data.result || [];[cite: 3]
+        // FIX: Target dibongkar langsung dari susunan 'data.result.videos'
+        return data.result?.videos || data.result || [];
     } catch (e) {
-        console.error(e);[cite: 3]
-        return [];[cite: 3]
+        console.error(e);
+        return [];
     }
 }
 
@@ -227,7 +229,7 @@ async function searchSongs(keyword) {
    UI CARD CREATION
 ========================= */
 function createCard(song) {
-    const imgUrl = song.thumbnail || song.image || "https://placehold.co/150x150";[cite: 3]
+    const imgUrl = song.thumbnail || song.image || "https://placehold.co/150x150";
     const songArtist = song.artist || song.author || "Unknown Artist";
     return `
     <div class="song-card" data-url="${song.url}">
@@ -235,11 +237,11 @@ function createCard(song) {
         <h4>${song.title}</h4>
         <p>${songArtist}</p>
     </div>
-    `;[cite: 3]
+    `;
 }
 
 function createRow(song) {
-    const imgUrl = song.thumbnail || song.image || "https://placehold.co/60x60";[cite: 3]
+    const imgUrl = song.thumbnail || song.image || "https://placehold.co/60x60";
     const songArtist = song.artist || song.author || "Unknown Artist";
     return `
     <div class="recent-item">
@@ -249,31 +251,32 @@ function createRow(song) {
             <p>${songArtist}</p>
         </div>
     </div>
-    `;[cite: 3]
+    `;
 }
 
 /* =========================
    LOAD BERANDA SECTIONS
 ========================= */
 async function loadSection(container, keyword) {
-    container.innerHTML = `<div class="loading">Memuat musik...</div>`;[cite: 3]
-    const songs = await searchSongs(keyword);[cite: 3]
+    container.innerHTML = `<div class="loading">Memuat musik...</div>`;
+    const songs = await searchSongs(keyword);
     
-    if(songs.length > 0) {
-        playlist.push(...songs);[cite: 3]
-        container.innerHTML = songs.slice(0, 12).map(createCard).join("");[cite: 3]
+    if (songs.length > 0) {
+        playlist.push(...songs);
+        container.innerHTML = songs.slice(0, 12).map(createCard).join("");
 
         container.querySelectorAll(".song-card").forEach((card) => {
             card.addEventListener("click", () => {
-                const songUrl = card.getAttribute("data-url");[cite: 3]
-                const foundSong = playlist.find(s => s.url === songUrl);[cite: 3]
-                if (foundSong) {
-                    playSong(foundSong, playlist.indexOf(foundSong));[cite: 3]
+                const songUrl = card.getAttribute("data-url");
+                // FIX: Menemukan indeks dinamis real-time dari global playlist array agar navigasi prev/next konstan
+                const currentSongIdx = playlist.findIndex(s => s.url === songUrl);
+                if (currentSongIdx !== -1) {
+                    playSong(playlist[currentSongIdx], currentSongIdx);
                 }
             });
         });
     } else {
-        container.innerHTML = `<div class="loading">Gagal memuat daftar lagu.</div>`;[cite: 3]
+        container.innerHTML = `<div class="loading">Gagal memuat daftar lagu.</div>`;
     }
 }
 
@@ -281,19 +284,24 @@ async function loadSection(container, keyword) {
    INITIALIZATION
 ========================= */
 async function init() {
-    renderRecentSongs();[cite: 3]
+    renderRecentSongs();
     
     await Promise.all([
-        loadSection(topHits, "top hits indonesia"),[cite: 3]
-        loadSection(viralHits, "lagu viral tiktok"),[cite: 3]
-        loadSection(newRelease, "musik terbaru 2026")[cite: 3]
+        loadSection(topHits, "top hits indonesia"),
+        loadSection(viralHits, "lagu viral tiktok"),
+        loadSection(newRelease, "musik terbaru 2026")
     ]);
 
-    const autoplay = JSON.parse(localStorage.getItem("autoplay_song"));[cite: 3]
+    const autoplay = JSON.parse(localStorage.getItem("autoplay_song"));
     if (autoplay) {
-        localStorage.removeItem("autoplay_song");[cite: 3]
-        playSong(autoplay, 0);[cite: 3]
+        localStorage.removeItem("autoplay_song");
+        let existingIndex = playlist.findIndex(s => s.url === autoplay.url);
+        if (existingIndex === -1) {
+            playlist.unshift(autoplay);
+            existingIndex = 0;
+        }
+        playSong(playlist[existingIndex], existingIndex);
     }
 }
 
-init();[cite: 3]
+init();
