@@ -1,94 +1,111 @@
-const searchInput = document.getElementById("searchInput");[cite: 5]
-const searchResults = document.getElementById("searchResults");[cite: 5]
-const searchBtn = document.getElementById("searchBtn");[cite: 5]
+const searchInput = document.getElementById("searchInput");
+const searchResults = document.getElementById("searchResults");
+const searchBtn = document.getElementById("searchBtn");
 
-let debounceTimer = null;[cite: 5]
+let debounceTimer = null;
 
-// Event input search (Debounce)
+// Fungsi pembantu untuk membersihkan string dari tanda kutip agar tidak merusak HTML atribut onclick
+function escapeHtmlString(str) {
+    if (!str) return "Unknown";
+    return str
+        .replace(/\\/g, "\\\\")
+        .replace(/'/g, "\\'")
+        .replace(/"/g, '&quot;');
+}
+
+// Event input search (Debounce 500ms)
 searchInput.addEventListener("input", (e) => {
-    const query = e.target.value.trim();[cite: 5]
-    clearTimeout(debounceTimer);[cite: 5]
+    const query = e.target.value.trim();
+    clearTimeout(debounceTimer);
 
     if (query.length === 0) {
-        searchResults.innerHTML = "";[cite: 5]
-        return;[cite: 5]
+        searchResults.innerHTML = "";
+        return;
     }
 
     debounceTimer = setTimeout(() => {
-        searchSongs(query);[cite: 5]
+        searchSongs(query);
     }, 500);
 });
 
-// Event click tombol cari
+// Event click tombol cari (Pastikan berjalan konstan)
 if (searchBtn) {
-    searchBtn.addEventListener("click", () => {
-        const query = searchInput.value.trim();[cite: 5]
+    searchBtn.onclick = (e) => {
+        e.preventDefault();
+        const query = searchInput.value.trim();
         if (query.length > 0) {
-            searchSongs(query);[cite: 5]
+            searchSongs(query);
         }
-    });
+    };
 }
 
-// Event Enter keyboard
+// Event Enter keyboard pada input field
 searchInput.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
-        const query = searchInput.value.trim();[cite: 5]
+        e.preventDefault();
+        const query = searchInput.value.trim();
         if (query.length > 0) {
-            searchSongs(query);[cite: 5]
+            searchSongs(query);
         }
     }
 });
 
-// Fetch ke backend lokal
+// Fetch ke backend lokal Vercel Rewrite
 async function searchSongs(query) {
     try {
-        searchResults.innerHTML = `<p class="loading">Sedang mencari...</p>`;[cite: 5]
-        const res = await fetch(`/api/search?query=${encodeURIComponent(query)}`);[cite: 5]
-        if (!res.ok) throw new Error("Gagal menyambung ke server");[cite: 5]
-        const data = await res.json();[cite: 5]
+        searchResults.innerHTML = `<p class="loading">Sedang mencari...</p>`;
         
-        // FIX: Ekstraksi array video dari skema data.result.videos
+        const res = await fetch(`/api/search?query=${encodeURIComponent(query)}&_t=${Date.now()}`);
+        if (!res.ok) throw new Error("Gagal menyambung ke server (Status: " + res.status + ")");
+        
+        const data = await res.json();
+        
+        // Ekstraksi array dari skema data.result.videos
         const songs = data.result?.videos || data.result || [];
-        renderResults(songs);[cite: 5]
+        renderResults(songs);
     } catch (err) {
-        searchResults.innerHTML = `<p class="error">Error: ${err.message}</p>`;[cite: 5]
+        console.error("Search error:", err);
+        searchResults.innerHTML = `<p class="error" style="text-align:center; padding:20px; color:#ff4a4a;">Error: ${err.message}</p>`;
     }
 }
 
-// Render hasil pencarian ke UI
+// Render hasil pencarian ke antarmuka (DOM)
 function renderResults(songs) {
-    if (!songs || !songs.length) {
-        searchResults.innerHTML = `<p class="empty">Lagu tidak ditemukan.</p>`;[cite: 5]
-        return;[cite: 5]
-    }
+    try {
+        if (!songs || !songs.length) {
+            searchResults.innerHTML = `<p class="empty" style="text-align:center; padding:20px; color:#aaa;">Lagu tidak ditemukan.</p>`;
+            return;
+        }
 
-    searchResults.innerHTML = songs.map(song => {
-        const safeTitle = song.title.replace(/'/g, "\\'");[cite: 5]
-        
-        // FIX: Antisipasi penamaan nama artis dari properti 'artist' atau 'author'
-        const songArtist = song.artist || song.author || "Unknown Artist";
-        const safeArtist = songArtist.replace(/'/g, "\\'");[cite: 5]
-        
-        const imgUrl = song.thumbnail || "https://placehold.co/60x60";[cite: 5]
+        searchResults.innerHTML = songs.map(song => {
+            // Amankan string judul dan artis dari bug pembatas tanda kutip (') atau (")
+            const safeTitle = escapeHtmlString(song.title);
+            const songArtist = song.artist || song.author || "Unknown Artist";
+            const safeArtist = escapeHtmlString(songArtist);
+            const imgUrl = song.thumbnail || "https://placehold.co/60x60";
 
-        return `
-            <div class="song-item" onclick="playSong('${song.url}', '${safeTitle}', '${safeArtist}', '${imgUrl}')">
-                <img src="${imgUrl}" alt="${song.title}" onerror="this.src='https://placehold.co/60x60'">
-                <div class="song-info">
-                    <h4>${song.title}</h4>
-                    <p>${songArtist}</p>
+            return `
+                <div class="song-item" onclick="playSong('${song.url}', '${safeTitle}', '${safeArtist}', '${imgUrl}')">
+                    <img src="${imgUrl}" alt="${safeTitle}" onerror="this.src='https://placehold.co/60x60'">
+                    <div class="song-info">
+                        <h4>${song.title}</h4>
+                        <p>${songArtist}</p>
+                    </div>
+                    <button class="play-btn">▶</button>
                 </div>
-                <button class="play-btn">▶</button>
-            </div>
-        `;[cite: 5]
-    }).join("");[cite: 5]
+            `;
+        }).join("");
+    } catch (renderError) {
+        console.error("Render error:", renderError);
+        searchResults.innerHTML = `<p class="error" style="text-align:center; padding:20px; color:#ff4a4a;">Gagal menampilkan hasil pencarian.</p>`;
+    }
 }
 
-// Navigasi play lagu ke index.html
+// Navigasi putar lagu secara otomatis menuju index.html
 function playSong(url, title, artist, thumbnail) {
-    const songData = { url, title, artist, thumbnail };[cite: 5]
-    localStorage.setItem("autoplay_song", JSON.stringify(songData));[cite: 5]
-    window.location.href = "index.html";[cite: 5]
+    const songData = { url, title, artist, thumbnail };
+    localStorage.setItem("autoplay_song", JSON.stringify(songData));
+    window.location.href = "index.html";
 }
 
-window.playSong = playSong;[cite: 5]
+window.playSong = playSong;
