@@ -7,12 +7,16 @@ export default async function handler(req, res) {
 
     try {
         const targetUrl = `https://api-arulzxd-vvipclouds.vercel.app/api/search/ytsearch?apikey=arulzxd-keys&query=${encodeURIComponent(query)}`;
-        const response = await fetch(targetUrl);
+        const response = await fetch(targetUrl, {
+            headers: {
+                'Cache-Control': 'no-cache',
+                'Pragma': 'no-cache'
+            }
+        });
         const data = await response.json();
         
-        // Teruskan data dari server luar ke frontend kamu
-        res.status(200).json(data);
+        return res.status(200).json(data);
     } catch (error) {
-        res.status(500).json({ status: false, message: error.message });
+        return res.status(500).json({ status: false, message: error.message });
     }
 }
