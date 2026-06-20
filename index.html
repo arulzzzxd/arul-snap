@@ -14,7 +14,6 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
 </head>
 <body>
 
-<!-- HEADER -->
 <header class="topbar">
     <h1>🎵 Arulz Music</h1>
 
@@ -23,52 +22,40 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
     </a>
 </header>
 
-<!-- CONTENT -->
 <main class="container">
 
-    <!-- TOP HITS -->
     <section>
         <h2>Top Hits Indonesia</h2>
         <div id="topHits" class="card-grid">
-            <div class="loading">
-                Memuat lagu...
-            </div>
+            <div class="loading">Memuat lagu...</div>
         </div>
     </section>
 
-    <!-- VIRAL -->
     <section>
         <h2>Lagu Viral</h2>
         <div id="viralHits" class="card-grid">
-            <div class="loading">
-                Memuat lagu...
-            </div>
+            <div class="loading">Memuat lagu...</div>
         </div>
     </section>
 
-    <!-- TERBARU -->
     <section>
         <h2>Musik Terbaru</h2>
         <div id="newRelease" class="card-grid">
-            <div class="loading">
-                Memuat lagu...
-            </div>
+            <div class="loading">Memuat lagu...</div>
         </div>
     </section>
 
-    <!-- TERAKHIR DIPUTAR -->
     <section>
         <h2>Terakhir Diputar</h2>
         <div id="recentSongs" class="song-list">
-            <div class="loading">
-                Belum ada lagu diputar
-            </div>
+            <div class="loading">Belum ada lagu diputar</div>
         </div>
     </section>
 
 </main>
 
 <!-- MINI PLAYER -->
+
 <div class="player">
 
     <img
@@ -77,6 +64,7 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
     alt="thumbnail">
 
     <div class="player-info">
+
         <h4 id="playerTitle">
             Pilih Lagu
         </h4>
@@ -84,6 +72,7 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
         <p id="playerArtist">
             Artist
         </p>
+
     </div>
 
     <button id="playBtn">
@@ -93,6 +82,7 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
 </div>
 
 <!-- FULL PLAYER -->
+
 <div id="fullPlayer" class="full-player">
 
     <div class="full-header">
@@ -101,9 +91,11 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
             <i class="fas fa-chevron-down"></i>
         </button>
 
-        <span>Sekarang Diputar</span>
+        <span>SEDANG DIPUTAR</span>
 
-        <div></div>
+        <button>
+            <i class="fas fa-ellipsis-v"></i>
+        </button>
 
     </div>
 
@@ -125,8 +117,15 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
         <div class="progress-container">
 
             <div class="time-row">
-                <span id="currentTime">0:00</span>
-                <span id="duration">0:00</span>
+
+                <span id="currentTime">
+                    0:00
+                </span>
+
+                <span id="duration">
+                    0:00
+                </span>
+
             </div>
 
             <div class="progress-bg">
@@ -143,7 +142,7 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
         <div class="controls">
 
             <button id="prevBtn">
-                <i class="fas fa-backward"></i>
+                <i class="fas fa-backward-step"></i>
             </button>
 
             <button id="bigPlay">
@@ -151,10 +150,63 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
             </button>
 
             <button id="nextBtn">
-                <i class="fas fa-forward"></i>
+                <i class="fas fa-forward-step"></i>
             </button>
 
         </div>
+
+        <!-- TAB -->
+
+        <div class="player-tabs">
+
+            <button class="tab">
+                <i class="fas fa-list"></i>
+                <span>Antrean</span>
+            </button>
+
+            <button class="tab active">
+                <i class="fas fa-microphone"></i>
+                <span>Lirik</span>
+            </button>
+
+            <button class="tab">
+                <i class="fas fa-user"></i>
+                <span>Artis</span>
+            </button>
+
+        </div>
+
+        <!-- LIRIK -->
+
+        <div class="lyrics-card">
+
+            <div class="lyrics-header">
+
+                <h3>Lirik</h3>
+
+                <div class="lyrics-actions">
+
+                    <button>
+                        <i class="fas fa-share-alt"></i>
+                    </button>
+
+                    <button>
+                        <i class="fas fa-expand"></i>
+                    </button>
+
+                </div>
+
+            </div>
+
+            <div id="lyricsText" class="lyrics-text">
+
+                Lirik akan tampil di sini...
+
+            </div>
+
+        </div>
+
+        <!-- DOWNLOAD -->
 
         <button
         id="downloadBtn"
@@ -169,10 +221,8 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
 
 </div>
 
-<!-- AUDIO -->
 <audio id="audioPlayer"></audio>
 
-<!-- BOTTOM NAV -->
 <nav class="bottom-nav">
 
     <a href="index.html" class="active">
