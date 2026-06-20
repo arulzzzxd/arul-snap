@@ -315,21 +315,33 @@ const lyricsText = document.getElementById("lyricsText");
 async function loadLyrics(title, artist) {
     try {
         if (!lyricsText) return;
-        if (!title || title === "Memuat...") return;
-
         lyricsText.textContent = "Memuat lirik...";
 
-        // Bersihkan teks judul dari embel-embel (misal: "Official Video", "Lirik Video") agar pencarian API lirik akurat
-        const cleanTitle = title.replace(/\s*[\(\[][^)]*[\)\]]\s*/g, ""); 
+        // 1. Bersihkan judul dari teks di dalam kurung (misal: VERSION LYRICS, Official Video)
+        let cleanTitle = title.replace(/\s*[\(\[][^)]*[\)\]]\s*/gi, "").trim();
+        let cleanArtist = artist.trim();
 
-        const res = await fetch(
-            `https://api.lyrics.ovh/v1/${encodeURIComponent(artist)}/${encodeURIComponent(cleanTitle)}`
-        );
-        const data = await res.json();
+        // 2. Antisipasi jika judul dan artis tergabung di properti Title (e.g., "Denok - La Tasya")
+        if (cleanTitle.includes("-")) {
+            const parts = cleanTitle.split("-");
+            // Seringkali formatnya "Judul - Artis" atau "Artis - Judul"
+            cleanTitle = parts[0].trim();
+            cleanArtist = parts[1].trim();
+        }
+
+        // Coba fetch menggunakan kombinasi artis & judul yang sudah bersih
+        let res = await fetch(`https://api.lyrics.ovh/v1/${encodeURIComponent(cleanArtist)}/${encodeURIComponent(cleanTitle)}`);
+        let data = await res.json();
+
+        // Balik posisi pencarian jika percobaan pertama gagal (khawatir formatnya terbalik)
+        if (!data.lyrics) {
+            res = await fetch(`https://api.lyrics.ovh/v1/${encodeURIComponent(cleanTitle)}/${encodeURIComponent(cleanArtist)}`);
+            data = await res.json();
+        }
 
         lyricsText.innerHTML = data.lyrics ? data.lyrics.replace(/\n/g, "<br>") : "Lirik tidak tersedia.";
     } catch {
-        if (lyricsText) lyricsText.textContent = "Gagal memuat lirik.";
+        lyricsText.textContent = "Gagal memuat lirik.";
     }
 }
 
