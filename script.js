@@ -43,6 +43,7 @@ function saveRecent(song) {
 }
 
 function renderRecentSongs() {
+    if (!recentSongs) return; // Penjagaan jika elemen tidak ada di HTML halaman saat ini
     const recent = JSON.parse(localStorage.getItem("recentSongs")) || [];
 
     if (!recent.length) {
@@ -68,6 +69,7 @@ function renderRecentSongs() {
    PLAYER ACTIONS
 ========================= */
 function openPlayer() {
+    if (!fullPlayer) return;
     fullPlayer.classList.add("show");
     fpTitle.textContent = playerTitle.textContent;
     fpArtist.textContent = playerArtist.textContent;
@@ -75,33 +77,49 @@ function openPlayer() {
 }
 
 function closePlayer() {
+    if (!fullPlayer) return;
     fullPlayer.classList.remove("show");
 }
 
-document.querySelector(".player").addEventListener("click", openPlayer);
+// Opsional: Pastikan elemen .player ada sebelum memasang event listener
+const playerBar = document.querySelector(".player");
+if (playerBar) {
+    playerBar.addEventListener("click", openPlayer);
+}
 
 function togglePlay() {
     if (!audioPlayer.src) return;
 
     if (isPlaying) {
         audioPlayer.pause();
-        isPlaying = false;
-        playBtn.innerHTML = '<i class="fas fa-play"></i>';
-        bigPlay.innerHTML = '<i class="fas fa-play"></i>';
     } else {
-        audioPlayer.play();
-        isPlaying = true;
-        playBtn.innerHTML = '<i class="fas fa-pause"></i>';
-        bigPlay.innerHTML = '<i class="fas fa-pause"></i>';
+        audioPlayer.play().catch(err => console.error("Gagal memutar audio:", err));
     }
 }
 
-playBtn.addEventListener("click", e => {
-    e.stopPropagation();
-    togglePlay();
+// Sinkronisasi status UI menggunakan event bawaan Audio element (Lebih Terjamin)
+audioPlayer.addEventListener("play", () => {
+    isPlaying = true;
+    if (playBtn) playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+    if (bigPlay) bigPlay.innerHTML = '<i class="fas fa-pause"></i>';
 });
 
-bigPlay.addEventListener("click", togglePlay);
+audioPlayer.addEventListener("pause", () => {
+    isPlaying = false;
+    if (playBtn) playBtn.innerHTML = '<i class="fas fa-play"></i>';
+    if (bigPlay) bigPlay.innerHTML = '<i class="fas fa-play"></i>';
+});
+
+if (playBtn) {
+    playBtn.addEventListener("click", e => {
+        e.stopPropagation();
+        togglePlay();
+    });
+}
+
+if (bigPlay) {
+    bigPlay.addEventListener("click", togglePlay);
+}
 
 async function playSong(song, index = 0) {
     try {
@@ -109,15 +127,16 @@ async function playSong(song, index = 0) {
         currentIndex = index;
 
         // Set UI awal dari manifes lagu lokal sebelum server merespons
-        playerTitle.textContent = song.title || "Memuat...";
-        playerArtist.textContent = song.artist || song.author || "Unknown Artist";
-        
+        const localTitle = song.title || "Memuat...";
+        const localArtist = song.artist || song.author || "Unknown Artist";
         const imgUrl = song.thumbnail || song.image || "https://placehold.co/150x150";
-        playerThumb.src = imgUrl;
-        fpThumb.src = imgUrl;
 
-        fpTitle.textContent = playerTitle.textContent;
-        fpArtist.textContent = playerArtist.textContent;
+        if (playerTitle) playerTitle.textContent = localTitle;
+        if (playerArtist) playerArtist.textContent = localArtist;
+        if (playerThumb) playerThumb.src = imgUrl;
+        if (fpThumb) fpThumb.src = imgUrl;
+        if (fpTitle) fpTitle.textContent = localTitle;
+        if (fpArtist) fpArtist.textContent = localArtist;
 
         // Memanggil API download internal
         const res = await fetch(`${API_DOWNLOAD}?url=${encodeURIComponent(song.url)}`);
@@ -125,42 +144,51 @@ async function playSong(song, index = 0) {
 
         if (!data.status) throw new Error("Download gagal");
 
-        // FIX: Parsing link streaming berdasarkan target 'result.download.url' dari objek respon baru Anda
+        // Parsing link streaming berdasarkan target 'result.download.url'
         const streamUrl = data.result?.download?.url;
         if (!streamUrl) throw new Error("Link stream tidak ditemukan");
 
-        // FIX: Perbarui metadata secara realtime menggunakan kembalian valid dari data server 'result.video'
+        // Perbarui metadata secara realtime menggunakan data server 'result.video'
+        let finalTitle = localTitle;
+        let finalArtist = localArtist;
+
         if (data.result?.video) {
             const videoData = data.result.video;
-            playerTitle.textContent = videoData.title;
-            playerArtist.textContent = videoData.author || "Unknown Artist";
-            playerThumb.src = videoData.thumbnail || imgUrl;
-            fpThumb.src = videoData.thumbnail || imgUrl;
-            fpTitle.textContent = videoData.title;
-            fpArtist.textContent = videoData.author || "Unknown Artist";
+            finalTitle = videoData.title || localTitle;
+            finalArtist = videoData.author || localArtist;
+            const finalThumb = videoData.thumbnail || imgUrl;
+
+            if (playerTitle) playerTitle.textContent = finalTitle;
+            if (playerArtist) playerArtist.textContent = finalArtist;
+            if (playerThumb) playerThumb.src = finalThumb;
+            if (fpThumb) fpThumb.src = finalThumb;
+            if (fpTitle) fpTitle.textContent = finalTitle;
+            if (fpArtist) fpArtist.textContent = finalArtist;
             
             // Perbarui data referensi agar riwayat tersimpan rapi
-            song.title = videoData.title;
-            song.artist = videoData.author;
-            song.thumbnail = videoData.thumbnail;
+            song.title = finalTitle;
+            song.artist = finalArtist;
+            song.thumbnail = finalThumb;
         }
 
         audioPlayer.src = streamUrl;
         await audioPlayer.play();
 
-        isPlaying = true;
-        playBtn.innerHTML = '<i class="fas fa-pause"></i>';
-        bigPlay.innerHTML = '<i class="fas fa-pause"></i>';
+        // Inject callback download agar nama file rapi mengikuti properti 'result.download.filename'
+        if (downloadBtn) {
+            downloadBtn.onclick = (e) => {
+                e.stopPropagation(); // Mencegah full player terbuka saat tombol download diklik
+                const a = document.createElement("a");
+                a.href = streamUrl;
+                a.download = data.result?.download?.filename || `${finalTitle}.mp3`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            };
+        }
 
-        // FIX: Inject callback download agar nama file rapi mengikuti properti 'result.download.filename'
-        downloadBtn.onclick = () => {
-            const a = document.createElement("a");
-            a.href = streamUrl;
-            a.download = data.result?.download?.filename || `${playerTitle.textContent}.mp3`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-        };
+        // Panggil lirik secara dinamis setelah metadata final siap
+        loadLyrics(finalTitle, finalArtist);
 
         saveRecent(song);
     } catch (err) {
@@ -186,8 +214,8 @@ function playPrev() {
     playSong(playlist[currentIndex], currentIndex);
 }
 
-nextBtn.addEventListener("click", playNext);
-prevBtn.addEventListener("click", playPrev);
+if (nextBtn) nextBtn.addEventListener("click", playNext);
+if (prevBtn) prevBtn.addEventListener("click", playPrev);
 audioPlayer.addEventListener("ended", playNext);
 
 function formatTime(sec) {
@@ -203,9 +231,9 @@ function formatTime(sec) {
 audioPlayer.addEventListener("timeupdate", () => {
     if (!audioPlayer.duration) return;
     const percent = (audioPlayer.currentTime / audioPlayer.duration) * 100;
-    progress.style.width = percent + "%";
-    currentTimeEl.textContent = formatTime(audioPlayer.currentTime);
-    durationEl.textContent = formatTime(audioPlayer.duration);
+    if (progress) progress.style.width = percent + "%";
+    if (currentTimeEl) currentTimeEl.textContent = formatTime(audioPlayer.currentTime);
+    if (durationEl) durationEl.textContent = formatTime(audioPlayer.duration);
 });
 
 /* =========================
@@ -217,7 +245,6 @@ async function searchSongs(keyword) {
         const data = await res.json();
         if (!data.status) return [];
         
-        // FIX: Target dibongkar langsung dari susunan 'data.result.videos'
         return data.result?.videos || data.result || [];
     } catch (e) {
         console.error(e);
@@ -258,6 +285,7 @@ function createRow(song) {
    LOAD BERANDA SECTIONS
 ========================= */
 async function loadSection(container, keyword) {
+    if (!container) return; // Cegah error jika section tidak ada di HTML
     container.innerHTML = `<div class="loading">Memuat musik...</div>`;
     const songs = await searchSongs(keyword);
     
@@ -268,7 +296,6 @@ async function loadSection(container, keyword) {
         container.querySelectorAll(".song-card").forEach((card) => {
             card.addEventListener("click", () => {
                 const songUrl = card.getAttribute("data-url");
-                // FIX: Menemukan indeks dinamis real-time dari global playlist array agar navigasi prev/next konstan
                 const currentSongIdx = playlist.findIndex(s => s.url === songUrl);
                 if (currentSongIdx !== -1) {
                     playSong(playlist[currentSongIdx], currentSongIdx);
@@ -277,6 +304,32 @@ async function loadSection(container, keyword) {
         });
     } else {
         container.innerHTML = `<div class="loading">Gagal memuat daftar lagu.</div>`;
+    }
+}
+
+/* =========================
+   LYRICS EXTENSION
+========================= */
+const lyricsText = document.getElementById("lyricsText");
+
+async function loadLyrics(title, artist) {
+    try {
+        if (!lyricsText) return;
+        if (!title || title === "Memuat...") return;
+
+        lyricsText.textContent = "Memuat lirik...";
+
+        // Bersihkan teks judul dari embel-embel (misal: "Official Video", "Lirik Video") agar pencarian API lirik akurat
+        const cleanTitle = title.replace(/\s*[\(\[][^)]*[\)\]]\s*/g, ""); 
+
+        const res = await fetch(
+            `https://api.lyrics.ovh/v1/${encodeURIComponent(artist)}/${encodeURIComponent(cleanTitle)}`
+        );
+        const data = await res.json();
+
+        lyricsText.innerHTML = data.lyrics ? data.lyrics.replace(/\n/g, "<br>") : "Lirik tidak tersedia.";
+    } catch {
+        if (lyricsText) lyricsText.textContent = "Gagal memuat lirik.";
     }
 }
 

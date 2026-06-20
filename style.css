@@ -308,3 +308,188 @@ body{
 .bottom-nav a.active{
     color:white;
 }
+
+/* =========================================
+   SPOTIFY STYLE CARD SCROLL
+========================================= */
+
+.container{
+    padding:15px;
+}
+
+section{
+    margin-bottom:25px;
+}
+
+section h2{
+    font-size:18px;
+    margin-bottom:12px;
+    padding-left:4px;
+}
+
+.card-grid{
+    display:flex;
+    gap:14px;
+    overflow-x:auto;
+    overflow-y:hidden;
+    scroll-snap-type:x mandatory;
+    scroll-behavior:smooth;
+    padding-bottom:8px;
+}
+
+.card-grid::-webkit-scrollbar{
+    display:none;
+}
+
+.song-card{
+    flex:0 0 145px;
+    width:145px;
+    background:#111;
+    border-radius:16px;
+    overflow:hidden;
+    scroll-snap-align:start;
+    cursor:pointer;
+    transition:.25s;
+}
+
+.song-card:active{
+    transform:scale(.96);
+}
+
+.song-card img{
+    width:100%;
+    height:145px;
+    object-fit:cover;
+    display:block;
+}
+
+.song-card h4{
+    font-size:13px;
+    padding:8px 10px 4px;
+    line-height:1.4;
+
+    display:-webkit-box;
+    -webkit-line-clamp:2;
+    -webkit-box-orient:vertical;
+    overflow:hidden;
+
+    min-height:38px;
+}
+
+.song-card p{
+    font-size:11px;
+    color:#999;
+    padding:0 10px 10px;
+
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+}
+
+/* =========================================
+   RECENT SONG LIST
+========================================= */
+
+.song-list{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+}
+
+.recent-item{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    background:#111;
+    padding:10px;
+    border-radius:12px;
+    cursor:pointer;
+}
+
+.recent-item img{
+    width:55px;
+    height:55px;
+    border-radius:10px;
+    object-fit:cover;
+}
+
+.recent-item h4{
+    font-size:14px;
+    margin-bottom:3px;
+}
+
+.recent-item p{
+    font-size:12px;
+    color:#999;
+}
+
+/* =========================================
+   FULL PLAYER IMPROVEMENT
+========================================= */
+
+.full-content img{
+    width:260px;
+    height:260px;
+    border-radius:20px;
+}
+
+#fpTitle{
+    font-size:24px;
+}
+
+#fpArtist{
+    font-size:14px;
+}
+
+/* =========================================
+   LYRICS IMPROVEMENT
+========================================= */
+
+.lyrics-card{
+    margin-bottom:15px;
+}
+
+.lyrics-text{
+    font-size:18px;
+    line-height:1.8;
+    max-height:350px;
+    overflow-y:auto;
+}
+
+.lyrics-text::-webkit-scrollbar{
+    width:4px;
+}
+
+.lyrics-text::-webkit-scrollbar-thumb{
+    background:rgba(255,255,255,.3);
+    border-radius:999px;
+}
+
+/* =========================================
+   MOBILE OPTIMIZATION
+========================================= */
+
+@media (max-width:480px){
+
+    .song-card{
+        flex:0 0 135px;
+        width:135px;
+    }
+
+    .song-card img{
+        height:135px;
+    }
+
+    .full-content img{
+        width:220px;
+        height:220px;
+    }
+
+    #fpTitle{
+        font-size:20px;
+    }
+
+    .lyrics-text{
+        font-size:16px;
+    }
+}
